@@ -1,4 +1,5 @@
 #include "game.h"
+#include "SDL.h"
 #include <iostream>
 
 Game::Game() {
@@ -10,5 +11,7 @@ Game::~Game() {
 }
 
 void Game::run() {
-	std::cout << "I\'m running!";
+
+	if (SDL_Init(SDL_INIT_VIDEO) == 0)
+		std::cout << "I\'m running!\n";
 }
