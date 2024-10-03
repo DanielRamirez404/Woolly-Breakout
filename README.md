@@ -18,12 +18,12 @@ Then, you can clone the repository with git on any given folder.
 git clone https://github.com/DanielRamirez404/Wolly-Breakout.git
 ```
 
-After that, you'll have downloaded the whole game's code, so you can go to the src folder and build the project on a new build file, like this:
+After that, you'll have downloaded the whole game's code, so you can go to the src folder and build the project on a new build folder, like this:
 
 ```
 ...Woolly-Breakout/src$ mkdir build
 ...Woolly-Breakout/src$ cd build
-...Woolly-Breakout/src/build$ cmake ...
+...Woolly-Breakout/src/build$ cmake ..
 ...Woolly-Breakout/src/build$ make
 ```
 
