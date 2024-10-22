@@ -4,11 +4,11 @@ class Game {
 	public:
 
 		Game();
-		~Game();
-
+		
+		void initializeLibraries();
 		void run();
 
 	private:
-
+		
 		//todo!
 };
