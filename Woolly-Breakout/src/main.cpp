@@ -1,10 +1,17 @@
 #include "game.h"
+#include <stdexcept>
+#include <iostream>
 
 int main(int argc, char *argv[]) {
 
-	Game myGame{};
-
-	myGame.run();
+	try {
+		Game myGame{};
+		myGame.run();
+	} catch(const std::runtime_error& error) {
+		std::cerr << "Runtime error: " << error.what() << ".\n";
+	} catch(...) {
+		std::cerr << "An unexpected unsolvable error has occurred.\n";
+	}
 	
 	return 0;
 }

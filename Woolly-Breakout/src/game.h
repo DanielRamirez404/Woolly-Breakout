@@ -1,4 +1,6 @@
 #pragma once
+#include "SDL.h"
+#include <memory>
 
 class Game {
 	public:
@@ -9,6 +11,14 @@ class Game {
 		void run();
 
 	private:
+
 		
-		//todo!
+		struct deleter {
+  			void operator()(SDL_Window *p) const { SDL_DestroyWindow(p); }
+  			void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
+  			void operator()(SDL_Texture *p) const { SDL_DestroyTexture(p); }
+		};
+
+		std::unique_ptr<SDL_Window, deleter> window{ nullptr };
+		std::unique_ptr<SDL_Renderer, deleter> renderer{ nullptr };
 };
