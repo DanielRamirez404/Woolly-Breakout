@@ -1,5 +1,6 @@
 #include "game.h"
 #include "SDL.h"
+#include "SDL_image.h"
 #include <stdexcept>
 #include <memory>
 
@@ -25,5 +26,17 @@ void Game::initializeLibraries() {
 }
 
 void Game::run() {
-	//
+
+	SDL_Event event{};
+		
+	while (true) {
+
+		while (SDL_WaitEvent(&event)) {
+
+			if (event.type == SDL_QUIT)
+				return;
+
+		}
+
+	}
 }
