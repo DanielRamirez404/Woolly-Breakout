@@ -2,6 +2,7 @@
 #include "map.h"
 #include "SDL.h"
 #include <memory>
+#include <string_view>
 
 class Game {
 	public:
@@ -18,6 +19,7 @@ class Game {
   			void operator()(SDL_Window *p) const { SDL_DestroyWindow(p); }
   			void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
   			void operator()(SDL_Texture *p) const { SDL_DestroyTexture(p); }
+			void operator()(SDL_Surface *p) const { SDL_FreeSurface; }
 		};
 
 		std::unique_ptr<SDL_Window, deleter> window{ nullptr };
@@ -27,4 +29,7 @@ class Game {
 		std::unique_ptr<SDL_Texture, deleter> grassTexture{ nullptr };
 
 		Map map{};
+
+		void loadResources();
+		SDL_Texture* loadImage(std::string_view path);
 };
