@@ -1,4 +1,5 @@
 #pragma once
+#include "map.h"
 #include "SDL.h"
 #include <memory>
 
@@ -21,4 +22,9 @@ class Game {
 
 		std::unique_ptr<SDL_Window, deleter> window{ nullptr };
 		std::unique_ptr<SDL_Renderer, deleter> renderer{ nullptr };
+
+		std::unique_ptr<SDL_Texture, deleter> wallTexture{ nullptr };
+		std::unique_ptr<SDL_Texture, deleter> grassTexture{ nullptr };
+
+		Map map{};
 };
