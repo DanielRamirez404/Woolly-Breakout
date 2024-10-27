@@ -32,4 +32,5 @@ class Game {
 
 		void loadResources();
 		SDL_Texture* loadImage(std::string_view path);
+		void renderMap();
 };

@@ -18,7 +18,7 @@ void Game::initializeLibraries() {
 	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 		throw std::runtime_error("SDL_Image Initialization Error");
 
-	window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 800, SDL_WINDOW_SHOWN));
+	window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 500, SDL_WINDOW_SHOWN));
 
 	if (!window)
 		throw std::runtime_error("Window Initialization Error");
@@ -35,15 +35,8 @@ void Game::run() {
 
 	SDL_Event event{};
 
-	SDL_SetRenderDrawColor(renderer.get(), 0, 255, 255, 150);
-
-	SDL_Rect fullBoardRect{ 0, 0, 800, 800 };
-
-	SDL_Rect squareRect{ 0, 0, 800, 800 };
-	SDL_RenderClear(renderer.get());
-	SDL_RenderCopy(renderer.get(), grassTexture.get(), nullptr, &squareRect);
-	SDL_RenderPresent(renderer.get());
-
+	renderMap();
+		
 	while (true) {
 
 		while (SDL_WaitEvent(&event)) {
@@ -75,4 +68,26 @@ SDL_Texture* Game::loadImage(std::string_view path) {
 		throw std::runtime_error(std::string("Can\'t create image texture from path: ") + std::string(path));
 
 	return texture;
+}
+
+void Game::renderMap() {
+		
+	SDL_RenderClear(renderer.get());
+	SDL_SetRenderDrawColor(renderer.get(), 0, 255, 255, 150);
+
+	SDL_Rect squareRect{ 0, 0, 500, 500 };
+
+	int size{ 500 / 5 };
+
+	auto myMap = map.getMatrix();
+
+	for (int i{0}; i < 5; ++i) {
+		for (int j{0}; j < 5; ++j) {
+			SDL_Rect tile{ j * size, i * size, size, size };
+			auto& texture = (myMap[i][j] == '1') ? wallTexture : grassTexture;
+				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
+		}
+	}
+
+	SDL_RenderPresent(renderer.get());
 }
