@@ -1,4 +1,5 @@
 #include "game.h"
+#include "map.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>
@@ -34,17 +35,50 @@ void Game::initializeLibraries() {
 void Game::run() {
 
 	SDL_Event event{};
-
-	renderMap();
+	constexpr int fps{ 24 };
 		
+	renderMap();
+
 	while (true) {
+
+		SDL_Delay(1000 / fps);
 
 		while (SDL_WaitEvent(&event)) {
 
 			if (event.type == SDL_QUIT)
 				return;
-		}
 
+			if (event.type == SDL_KEYDOWN) {
+				
+				switch (event.key.keysym.sym) {
+				
+					case SDLK_w:
+					case SDLK_UP:
+						map.movePlayer(Map::Direction::UP);
+						break;
+
+					case SDLK_a:
+					case SDLK_LEFT:
+						map.movePlayer(Map::Direction::LEFT);
+						break;
+
+					case SDLK_s:
+					case SDLK_DOWN:
+						map.movePlayer(Map::Direction::DOWN);
+						break;
+
+					case SDLK_d:
+					case SDLK_RIGHT:
+						map.movePlayer(Map::Direction::RIGHT);
+						break;
+				
+					default:
+						break;
+				}
+			}
+
+			renderMap();
+		}
 	}
 }
 
@@ -52,6 +86,7 @@ void Game::loadResources() {
 	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);	
 	grassTexture.reset(loadImage("../../res/grass.png"));
 	wallTexture.reset(loadImage("../../res/wall.png"));
+	playerTextre.reset(loadImage("../../res/player.png"));
 }
 
 SDL_Texture* Game::loadImage(std::string_view path) {
@@ -88,6 +123,11 @@ void Game::renderMap() {
 				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
 		}
 	}
+
+	const Map::Coordinates& player = map.getPlayer();
+
+	SDL_Rect tile{ player.j * size, player.i * size, size, size };
+	SDL_RenderCopy(renderer.get(), playerTextre.get(), nullptr, &tile);
 
 	SDL_RenderPresent(renderer.get());
 }

@@ -27,6 +27,7 @@ class Game {
 
 		std::unique_ptr<SDL_Texture, deleter> wallTexture{ nullptr };
 		std::unique_ptr<SDL_Texture, deleter> grassTexture{ nullptr };
+		std::unique_ptr<SDL_Texture, deleter> playerTextre{ nullptr };
 
 		Map map{};
 

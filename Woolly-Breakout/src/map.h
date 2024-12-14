@@ -5,9 +5,25 @@ class Map {
 
 	public:
 
+		struct Coordinates{
+
+			int i{1};
+			int j{1};
+
+		};
+
+		enum Direction {
+			UP,
+			DOWN,
+			LEFT,
+			RIGHT
+		};
+
 		using Matrix = std::array<std::array<char, 5>, 5>;
 		
 		const Matrix& getMatrix();
+		const Coordinates& getPlayer();
+		void movePlayer(Direction direction);
 
 	private:
 
@@ -20,4 +36,6 @@ class Map {
 				{'1', '1', '1', '1', '1'},
 			}
 		};
+
+		Coordinates player;
 };
