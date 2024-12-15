@@ -21,8 +21,8 @@ class Map {
 
 		using Matrix = std::array<std::array<char, 5>, 5>;
 		
-		const Matrix& getMatrix();
-		const Coordinates& getPlayer();
+		const Matrix& getMatrix() const;
+		const Coordinates& getPlayer() const;
 		void movePlayer(Direction direction);
 
 	private:

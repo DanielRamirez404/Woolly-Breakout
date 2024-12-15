@@ -9,7 +9,7 @@ class GameWindow {
 	public:
 
 		GameWindow();
-        void startGameLoop(const std::function<void(SDL_Event&)>& eventLogic);
+        void startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const Map& map);
 
 	private:
 		

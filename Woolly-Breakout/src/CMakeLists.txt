@@ -35,9 +35,9 @@ elseif(WIN32)
 endif()
 
 message(STATUS "Adding executable from the project\'s cpp files")
-add_executable(WoollyBreakout game.cpp main.cpp map.cpp)
+add_executable(WoollyBreakout game.cpp main.cpp map.cpp gameWindow.cpp)
 
 message(STATUS "Linking the project\'s header files")
-target_include_directories(WoollyBreakout PUBLIC game.h map.h)
+target_include_directories(WoollyBreakout PUBLIC game.h map.h gameWindow.h constants.h)
 message(STATUS "Linking SDL2 library")
 target_link_libraries(WoollyBreakout ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})

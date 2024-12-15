@@ -1,10 +1,10 @@
 #include "map.h"
 
-const Map::Matrix& Map::getMatrix() {
+const Map::Matrix& Map::getMatrix() const {
 	return matrix;
 }
 
-const Map::Coordinates& Map::getPlayer() {
+const Map::Coordinates& Map::getPlayer() const {
 	return player;
 }
 

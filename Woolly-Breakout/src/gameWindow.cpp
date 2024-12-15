@@ -13,12 +13,12 @@ GameWindow::GameWindow() {
     allocateUIResources();
 }
 
-void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic) {
+void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const Map& map) {
     SDL_Event event{};
 	constexpr int fps{ 24 };
     constexpr int delayTime{ 1000 / fps };
 		
-	renderMap();
+	renderMap(map);
 
     while (true) {
         
@@ -30,7 +30,7 @@ void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic
             eventLogic(event);
 
             SDL_Delay(delayTime);
-            renderMap();
+            renderMap(map);
         }
     }
 }
@@ -94,14 +94,14 @@ void GameWindow::renderMap(const Map& map) {
 
 	for (int i{0}; i < Constants::mapSize; ++i)
 		for (int j{0}; j < Constants::mapSize; ++j) {
-			SDL_Rect tile{ j * tileSize, i * tileSize, tileSize, tileSize };
+			SDL_Rect tile{ j * Constants::tileSize, i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
 			auto& texture = (matrix[i][j] == '1') ? wallTexture : grassTexture;
 				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
 		}
 
 	const Map::Coordinates& player = map.getPlayer();
 
-	SDL_Rect tile{ player.j * tileSize, player.i * tileSize, tileSize, tileSize };
+	SDL_Rect tile{ player.j * Constants::tileSize, player.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
 	SDL_RenderCopy(renderer.get(), playerTextre.get(), nullptr, &tile);
 
 	SDL_RenderPresent(renderer.get());
