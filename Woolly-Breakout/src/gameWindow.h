@@ -4,6 +4,8 @@
 #include <memory>
 #include <functional>
 #include <string_view>
+#include <string>
+#include <unordered_map>
 
 class GameWindow {
 	public:
@@ -18,14 +20,11 @@ class GameWindow {
   			void operator()(SDL_Renderer *p) const { SDL_DestroyRenderer(p); }
   			void operator()(SDL_Texture *p) const { SDL_DestroyTexture(p); }
 			void operator()(SDL_Surface *p) const { SDL_FreeSurface(p); }
-		};
+        };
 
 		std::unique_ptr<SDL_Window, deleter> window{ nullptr };
 		std::unique_ptr<SDL_Renderer, deleter> renderer{ nullptr };
-
-		std::unique_ptr<SDL_Texture, deleter> wallTexture{ nullptr };
-		std::unique_ptr<SDL_Texture, deleter> grassTexture{ nullptr };
-		std::unique_ptr<SDL_Texture, deleter> playerTextre{ nullptr };
+        std::unordered_map<std::string, std::unique_ptr<SDL_Texture, deleter>> textures{};
 
 		void initializeLibraries();
         void allocateUIResources();

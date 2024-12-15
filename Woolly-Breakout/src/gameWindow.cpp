@@ -60,11 +60,14 @@ void GameWindow::allocateUIResources() {
 }
 
 void GameWindow::allocateImages() {
-	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);	
-	
-    grassTexture.reset(loadImage("../../res/grass.png"));
-	wallTexture.reset(loadImage("../../res/wall.png"));
-	playerTextre.reset(loadImage("../../res/player.png"));
+	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
+
+    textures["grass"] = nullptr;
+    textures["wall"] = nullptr;
+    textures["player"] = nullptr;
+
+    for (auto& [name, texture] : textures)
+        texture.reset(loadImage("../../res/" + name + ".png"));
 }
 
 SDL_Texture* GameWindow::loadImage(std::string_view path) {
@@ -95,14 +98,14 @@ void GameWindow::renderMap(const Map& map) {
 	for (int i{0}; i < Constants::mapSize; ++i)
 		for (int j{0}; j < Constants::mapSize; ++j) {
 			SDL_Rect tile{ j * Constants::tileSize, i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
-			auto& texture = (matrix[i][j] == '1') ? wallTexture : grassTexture;
+			auto& texture = (matrix[i][j] == '1') ? textures["wall"] : textures["grass"];
 				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
 		}
 
 	const Map::Coordinates& player = map.getPlayer();
 
 	SDL_Rect tile{ player.j * Constants::tileSize, player.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
-	SDL_RenderCopy(renderer.get(), playerTextre.get(), nullptr, &tile);
+	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);
 
 	SDL_RenderPresent(renderer.get());
 }
