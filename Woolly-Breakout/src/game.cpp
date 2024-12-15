@@ -1,9 +1,7 @@
 #include "game.h"
 #include "map.h"
+#include "map-utilities.h"
 #include "SDL.h"
-#include "SDL_image.h"
-#include <stdexcept>
-#include <memory>
 #include <functional>
 
 void Game::run() {
@@ -17,22 +15,22 @@ void Game::handleEvents(SDL_Event& event) {
 		
 			case SDLK_w:
 			case SDLK_UP:
-				map.movePlayer(Map::Direction::UP);
+				map.movePlayer(Direction::UP);
 				break;
 
 			case SDLK_a:
 			case SDLK_LEFT:
-				map.movePlayer(Map::Direction::LEFT);
+				map.movePlayer(Direction::LEFT);
 				break;
 
 			case SDLK_s:
 			case SDLK_DOWN:
-				map.movePlayer(Map::Direction::DOWN);
+				map.movePlayer(Direction::DOWN);
 				break;
 
 			case SDLK_d:
 			case SDLK_RIGHT:
-				map.movePlayer(Map::Direction::RIGHT);
+				map.movePlayer(Direction::RIGHT);
 				break;
 		
 			default:

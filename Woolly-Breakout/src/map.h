@@ -1,28 +1,16 @@
 #pragma once
+#include "player.h"
+#include "map-utilities.h"
 #include <array>
 
 class Map {
 
 	public:
 
-		struct Coordinates{
-
-			int i{1};
-			int j{1};
-
-		};
-
-		enum Direction {
-			UP,
-			DOWN,
-			LEFT,
-			RIGHT
-		};
-
 		using Matrix = std::array<std::array<char, 5>, 5>;
 		
 		const Matrix& getMatrix() const;
-		const Coordinates& getPlayer() const;
+		const Coordinates<float>& getPlayer() const;
 		void movePlayer(Direction direction);
 
 	private:
@@ -37,5 +25,6 @@ class Map {
 			}
 		};
 
-		Coordinates player;
+		Player player{ Coordinates<int>{ 1, 1 } };
+	
 };

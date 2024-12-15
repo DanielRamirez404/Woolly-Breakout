@@ -1,5 +1,6 @@
 #include "gameWindow.h"
 #include "constants.h"
+#include "map-utilities.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>
@@ -15,8 +16,7 @@ GameWindow::GameWindow() {
 
 void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const Map& map) {
     SDL_Event event{};
-	constexpr int fps{ 24 };
-    constexpr int delayTime{ 1000 / fps };
+    constexpr int delayTime{ 1000 / Constants::fps };
 		
 	renderMap(map);
 
@@ -102,7 +102,7 @@ void GameWindow::renderMap(const Map& map) {
 				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
 		}
 
-	const Map::Coordinates& player = map.getPlayer();
+	const Coordinates<float>& player = map.getPlayer();
 
 	SDL_Rect tile{ player.j * Constants::tileSize, player.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
 	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);

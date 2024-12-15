@@ -1,33 +1,14 @@
 #include "map.h"
+#include "map-utilities.h"
 
 const Map::Matrix& Map::getMatrix() const {
 	return matrix;
 }
 
-const Map::Coordinates& Map::getPlayer() const {
-	return player;
+const Coordinates<float>& Map::getPlayer() const {
+	return player.getCoordinates();
 }
 
-void Map::movePlayer(Map::Direction direction) {
-	using Dir = Map::Direction;
-	
-	switch (direction)
-	{
-		case Dir::UP:
-			--player.i;
-			break;
-
-		case Dir::DOWN:
-			++player.i;
-			break;
-
-		case Dir::LEFT:
-			--player.j;
-			break;
-		
-		case Dir::RIGHT:
-			++player.j;
-			break;
-	
-	}
+void Map::movePlayer(Direction direction) {
+	player.move(direction);
 }
