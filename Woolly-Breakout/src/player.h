@@ -7,12 +7,15 @@ class Player {
     public:
 
         Player(const Coordinates<int>& mapCoordinates);
-        void move(Direction direction);
+        void startMove(Direction direction);
+        void stopMove();
+        void keepMoving();
+        bool isMoving();
         const Coordinates<float>& getCoordinates() const;
-
 
     private:
         
         Coordinates<float> coordinates{};
 
+        std::optional<Move> movement{ std::nullopt };
 };

@@ -11,7 +11,7 @@ class Map {
 		
 		const Matrix& getMatrix() const;
 		const Coordinates<float>& getPlayer() const;
-		void movePlayer(Direction direction);
+		Player& getPlayer();
 
 	private:
 

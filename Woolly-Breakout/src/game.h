@@ -15,4 +15,5 @@ class Game {
 		Map map{};
 
 		void handleEvents(SDL_Event& event);
+		void handleLogic();
 };

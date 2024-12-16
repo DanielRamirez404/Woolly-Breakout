@@ -14,24 +14,26 @@ GameWindow::GameWindow() {
     allocateUIResources();
 }
 
-void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const Map& map) {
+void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map) {
     SDL_Event event{};
     constexpr int delayTime{ 1000 / Constants::fps };
 		
 	renderMap(map);
 
     while (true) {
+
+		loopLogic();
         
-        while (SDL_WaitEvent(&event)) {
+        while (SDL_PollEvent(&event)) {
 
             if (event.type == SDL_QUIT)
 				return;
 
             eventLogic(event);
-
-            SDL_Delay(delayTime);
-            renderMap(map);
         }
+
+		SDL_Delay(delayTime);
+		renderMap(map);
     }
 }
 
@@ -104,7 +106,7 @@ void GameWindow::renderMap(const Map& map) {
 
 	const Coordinates<float>& player = map.getPlayer();
 
-	SDL_Rect tile{ player.j * Constants::tileSize, player.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
+	SDL_Rect tile{ static_cast<int>(player.j * Constants::tileSize), static_cast<int>(player.i * Constants::tileSize), Constants::tileSize, Constants::tileSize };
 	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);
 
 	SDL_RenderPresent(renderer.get());

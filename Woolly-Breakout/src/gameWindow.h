@@ -11,7 +11,7 @@ class GameWindow {
 	public:
 
 		GameWindow();
-        void startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const Map& map);
+        void startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map);
 
 	private:
 		
