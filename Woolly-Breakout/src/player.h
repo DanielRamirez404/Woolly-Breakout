@@ -1,5 +1,6 @@
 #pragma once
 #include "map-utilities.h"
+#include "move.h"
 #include <optional>
 
 class Player {
