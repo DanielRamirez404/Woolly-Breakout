@@ -100,9 +100,21 @@ void GameWindow::renderMap(const Map& map) {
 
 	for (int i{0}; i < Constants::mapSize; ++i)
 		for (int j{0}; j < Constants::mapSize; ++j) {
-			SDL_Rect tile{ j * Constants::tileSize, i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
-			auto& texture = (matrix[i][j] == '1') ? textures["wall"] : textures["grass"];
-				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
+
+			SDL_Rect square{ j * Constants::tileSize, i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
+			
+			const char& tile{ matrix[i][j] }; 
+
+			auto& texture = (tile == '1') ? textures["wall"] : textures["grass"];
+			SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &square);
+
+			if (tile == '2') {
+				SDL_RenderCopy(renderer.get(), textures["door"].get(), nullptr, &square);
+			} else if (tile == '3') {
+				SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &square);
+			}
+
+		
 		}
 
 	const Coordinates<float>& player = map.getPlayer();
