@@ -7,6 +7,7 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <array>
 #include <string_view>
 
 GameWindow::GameWindow() {
@@ -64,12 +65,12 @@ void GameWindow::allocateUIResources() {
 void GameWindow::allocateImages() {
 	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
 
-    textures["grass"] = nullptr;
-    textures["wall"] = nullptr;
-    textures["player"] = nullptr;
+	std::array<std::string, 5> names = { 
+		{ "grass", "wall", "player", "key","door" } 
+	};
 
-    for (auto& [name, texture] : textures)
-        texture.reset(loadImage("../../res/" + name + ".png"));
+	for (const std::string& name : names)
+		textures.emplace(name, loadImage("../../res/" + name + ".png"));
 }
 
 SDL_Texture* GameWindow::loadImage(std::string_view path) {
