@@ -7,7 +7,6 @@ class Move {
 		Move(float& variable, float limit);
 
 		void move();
-		
         bool isDone();
 
 	private:

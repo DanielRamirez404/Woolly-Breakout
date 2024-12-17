@@ -8,7 +8,8 @@ class Player {
     public:
 
         Player(const Coordinates<int>& mapCoordinates);
-        void startMove(Direction direction);
+        void queueMove(Direction direction);
+        void startMove();
         void stopMove();
         void keepMoving();
         bool isMoving();
@@ -18,5 +19,6 @@ class Player {
         
         Coordinates<float> coordinates{};
 
+        std::optional<Direction> queuedDirection{};
         std::optional<Move> movement{ std::nullopt };
 };

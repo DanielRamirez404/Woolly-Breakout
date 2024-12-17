@@ -1,6 +1,8 @@
 #include "player.h"
 #include "map-utilities.h"
+#include "move.h"
 #include <optional>
+#include <utility>
 
 Player::Player(const Coordinates<int>& mapCoordinates)
     : coordinates{ static_cast<float>(mapCoordinates.i), static_cast<float>(mapCoordinates.j) } {}
@@ -13,8 +15,15 @@ bool Player::isMoving() {
     return movement.has_value() && !movement.value().isDone();
 }
 
-void Player::startMove(Direction direction) {
-    switch (direction) {
+void Player::queueMove(Direction direction) {
+    queuedDirection = direction;
+}
+
+void Player::startMove() {
+    if (!queuedDirection.has_value())
+        return;
+
+    switch (queuedDirection.value()) {
 		case Direction::UP:
 			movement.emplace(coordinates.i, coordinates.i - 1);
 			break;
@@ -30,8 +39,10 @@ void Player::startMove(Direction direction) {
 		case Direction::RIGHT:
 			movement.emplace(coordinates.j, coordinates.j + 1);
 			break;
-	
 	}
+
+    queuedDirection.reset();
+    keepMoving();
 }
 
 void Player::keepMoving() {

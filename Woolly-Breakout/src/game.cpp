@@ -11,27 +11,29 @@ void Game::run() {
 
 void Game::handleEvents(SDL_Event& event) {
 
+	Player& player = map.getPlayer();
+
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
 		
 			case SDLK_w:
 			case SDLK_UP:
-				map.getPlayer().startMove(Direction::UP);
+				player.queueMove(Direction::UP);
 				break;
 
 			case SDLK_a:
 			case SDLK_LEFT:
-				map.getPlayer().startMove(Direction::LEFT);
+				player.queueMove(Direction::LEFT);
 				break;
 
 			case SDLK_s:
 			case SDLK_DOWN:
-				map.getPlayer().startMove(Direction::DOWN);
+				player.queueMove(Direction::DOWN);
 				break;
 
 			case SDLK_d:
 			case SDLK_RIGHT:
-				map.getPlayer().startMove(Direction::RIGHT);
+				player.queueMove(Direction::RIGHT);
 				break;
 		
 			default:
@@ -45,4 +47,7 @@ void Game::handleLogic() {
 
 	if (player.isMoving()) 
 		player.keepMoving();
+	else
+		player.startMove();
+
 }
