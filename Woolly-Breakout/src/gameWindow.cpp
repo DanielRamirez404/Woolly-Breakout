@@ -1,6 +1,7 @@
 #include "gameWindow.h"
 #include "constants.h"
 #include "map-utilities.h"
+#include "safe-zone.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>
@@ -107,17 +108,21 @@ void GameWindow::renderMap(const Map& map) {
 
 			auto& texture = (tile == '1') ? textures["wall"] : textures["grass"];
 			SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &square);
-
-			if (tile == '2') {
-				SDL_RenderCopy(renderer.get(), textures["door"].get(), nullptr, &square);
-			} else if (tile == '3') {
-				SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &square);
-			}
-
-		
 		}
 
-	const Coordinates<float>& player = map.getPlayer();
+	const SafeZone& safeZone{ map.getSafeZone() };
+	const Coordinates<int>& door{ safeZone.getDoor() };
+	auto& doorTexture{ safeZone.isOpen() ? textures["grass"] : textures["door"] };
+
+	SDL_Rect doorTile{ door.j * Constants::tileSize, door.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
+	SDL_RenderCopy(renderer.get(), doorTexture.get(), nullptr, &doorTile);
+
+	for (const auto& key : safeZone.getKeys()) {
+		SDL_Rect tile{ key.j * Constants::tileSize, key.i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
+		SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &tile);
+	}
+
+	const Coordinates<float>& player{ map.getPlayer() };
 
 	SDL_Rect tile{ static_cast<int>(player.j * Constants::tileSize), static_cast<int>(player.i * Constants::tileSize), Constants::tileSize, Constants::tileSize };
 	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);

@@ -1,5 +1,6 @@
 #pragma once
 #include "player.h"
+#include "safe-zone.h"
 #include "map-utilities.h"
 #include <array>
 
@@ -7,11 +8,16 @@ class Map {
 
 	public:
 
+
+		Map();
+
 		using Matrix = std::array<std::array<char, 5>, 5>;
 		
 		const Matrix& getMatrix() const;
 		const Coordinates<float>& getPlayer() const;
 		Player& getPlayer();
+		SafeZone& getSafeZone();
+		const SafeZone& getSafeZone() const;
 
 	private:
 
@@ -26,5 +32,6 @@ class Map {
 		};
 
 		Player player{ Coordinates<int>{ 1, 1 } };
+		SafeZone safeZone{};
 	
 };
