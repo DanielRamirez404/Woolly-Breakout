@@ -1,12 +1,14 @@
 #include "gameWindow.h"
 #include "constants.h"
 #include "map-utilities.h"
+#include "safe-zone.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>
 #include <memory>
 #include <functional>
 #include <string>
+#include <array>
 #include <string_view>
 
 GameWindow::GameWindow() {
@@ -64,12 +66,12 @@ void GameWindow::allocateUIResources() {
 void GameWindow::allocateImages() {
 	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
 
-    textures["grass"] = nullptr;
-    textures["wall"] = nullptr;
-    textures["player"] = nullptr;
+	std::array<std::string, 6> names = { 
+		{ "grass", "wall", "player", "key", "door", "frame" } 
+	};
 
-    for (auto& [name, texture] : textures)
-        texture.reset(loadImage("../../res/" + name + ".png"));
+	for (const std::string& name : names)
+		textures.emplace(name, loadImage("../../res/" + name + ".png"));
 }
 
 SDL_Texture* GameWindow::loadImage(std::string_view path) {
@@ -91,23 +93,49 @@ SDL_Texture* GameWindow::loadImage(std::string_view path) {
 void GameWindow::renderMap(const Map& map) {
 
 	SDL_RenderClear(renderer.get());
-	SDL_SetRenderDrawColor(renderer.get(), 0, 255, 255, 150);
-
-	SDL_Rect squareRect{ 0, 0, Constants::windowSize, Constants::windowSize };
 
 	const Map::Matrix& matrix = map.getMatrix();
 
 	for (int i{0}; i < Constants::mapSize; ++i)
 		for (int j{0}; j < Constants::mapSize; ++j) {
-			SDL_Rect tile{ j * Constants::tileSize, i * Constants::tileSize, Constants::tileSize, Constants::tileSize };
-			auto& texture = (matrix[i][j] == '1') ? textures["wall"] : textures["grass"];
-				SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &tile);
+
+			SDL_Rect square{ j * Constants::tileWidth, Constants::statusBarLength + (i * Constants::tileLength), Constants::tileWidth, Constants::tileLength };
+			
+			const char& tile{ matrix[i][j] }; 
+
+			auto& texture = (tile == '1') ? textures["wall"] : textures["grass"];
+			SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &square);
 		}
 
-	const Coordinates<float>& player = map.getPlayer();
+	const SafeZone& safeZone{ map.getSafeZone() };
+	const Coordinates<int>& door{ safeZone.getDoor() };
+	auto& doorTexture{ safeZone.isOpen() ? textures["grass"] : textures["door"] };
 
-	SDL_Rect tile{ static_cast<int>(player.j * Constants::tileSize), static_cast<int>(player.i * Constants::tileSize), Constants::tileSize, Constants::tileSize };
+	SDL_Rect doorTile{ door.j  * Constants::tileWidth, Constants::statusBarLength + door.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength };
+	SDL_RenderCopy(renderer.get(), doorTexture.get(), nullptr, &doorTile);
+
+	for (const auto& key : safeZone.getKeys()) {
+		SDL_Rect tile{ key.j * Constants::tileWidth, Constants::statusBarLength + key.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength };
+		SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &tile);
+	}
+
+	const Coordinates<float>& player{ map.getPlayer() };
+
+	SDL_Rect tile{ static_cast<int>(player.j * Constants::tileWidth), Constants::statusBarLength + static_cast<int>(player.i * Constants::tileLength), Constants::tileWidth, Constants::tileLength };
 	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);
+
+	SDL_Rect statusRect{ 0, 0, Constants::windowSize, Constants::statusBarLength};
+	SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);
+	SDL_RenderFillRect(renderer.get(), &statusRect);
+
+	int pickedKeys{ safeZone.getPickedUpKeys() };
+
+	for (int i{0}; i < 3; ++i) {
+		SDL_Rect frame{ Constants::framePadding + Constants::frameSize * i, Constants::framePadding, Constants::frameSize, Constants::frameSize};
+		SDL_RenderCopy(renderer.get(), textures["frame"].get(), nullptr, &frame);
+		if (i < pickedKeys)
+			SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &frame);
+	}
 
 	SDL_RenderPresent(renderer.get());
 }
