@@ -14,6 +14,10 @@ void SafeZone::pickKeyUp(const Coordinates<int>& coordinates) {
     keys.remove(coordinates);
 }
 
+int SafeZone::getPickedUpKeys() const {
+    return 3 - keys.size();
+}
+
 bool SafeZone::isKey(const Coordinates<int>& coordinates) {
     for (const auto& key : keys)
         if (key == coordinates)

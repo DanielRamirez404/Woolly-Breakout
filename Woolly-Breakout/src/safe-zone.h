@@ -10,6 +10,7 @@ class SafeZone {
         void setDoor(const Coordinates<int>& coordinates);
         bool isKey(const Coordinates<int>& coordinates);
         bool isOpen() const;
+        int getPickedUpKeys() const;
         const Coordinates<int>& getDoor() const;
         const std::list<Coordinates<int>> getKeys() const; 
 
