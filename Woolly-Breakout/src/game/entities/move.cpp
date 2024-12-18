@@ -1,5 +1,5 @@
 #include "move.h"
-#include "constants.h"
+#include "../../constants/constants.h"
 
 Move::Move(float& variable, float limit) : axis{ variable }, end{ limit }, difference{ limit - variable } {} 
 

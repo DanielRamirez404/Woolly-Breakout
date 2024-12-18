@@ -1,8 +1,7 @@
 #pragma once
-#include "map.h"
+#include "map/map.h"
 #include "gameWindow.h"
 #include "SDL.h"
-
 
 class Game {
 	public:

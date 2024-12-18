@@ -1,7 +1,7 @@
 #include "map.h"
-#include "constants.h"
-#include "map-utilities.h"
-#include "safe-zone.h"
+#include "../../constants/constants.h"
+#include "utilities.h"
+#include "../entities/safe-zone.h"
 
 Map::Map() {
 	for (int i{0}; i < Constants::mapSize; ++i)

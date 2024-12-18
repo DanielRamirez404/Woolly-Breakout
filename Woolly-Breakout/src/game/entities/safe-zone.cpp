@@ -1,5 +1,5 @@
 #include "safe-zone.h"
-#include "map-utilities.h"
+#include "../map/utilities.h"
 #include <algorithm>
 
 void SafeZone::addKey(const Coordinates<int>& coordinates) {

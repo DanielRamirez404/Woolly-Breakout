@@ -1,7 +1,7 @@
 #include "game.h"
-#include "map.h"
-#include "player.h"
-#include "map-utilities.h"
+#include "map/map.h"
+#include "entities/player.h"
+#include "map/utilities.h"
 #include "SDL.h"
 #include <functional>
 

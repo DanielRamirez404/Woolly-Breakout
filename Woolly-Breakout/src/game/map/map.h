@@ -1,7 +1,7 @@
 #pragma once
-#include "player.h"
-#include "safe-zone.h"
-#include "map-utilities.h"
+#include "../entities/player.h"
+#include "../entities/safe-zone.h"
+#include "utilities.h"
 #include <array>
 
 class Map {

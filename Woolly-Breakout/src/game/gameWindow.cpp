@@ -1,7 +1,7 @@
 #include "gameWindow.h"
-#include "constants.h"
-#include "map-utilities.h"
-#include "safe-zone.h"
+#include "../constants/constants.h"
+#include "map/utilities.h"
+#include "entities/safe-zone.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>

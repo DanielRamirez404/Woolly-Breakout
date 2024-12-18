@@ -37,8 +37,11 @@ endif()
 message(STATUS "Creating executable from the project\'s source code")
 
 file(GLOB src
-	"*.h"
-	"*.cpp"
+	"main.cpp"
+	"constants/*"
+	"game/*"
+	"game/map/*"
+	"game/entities/*"
 )
 
 add_executable(WoollyBreakout ${src})
