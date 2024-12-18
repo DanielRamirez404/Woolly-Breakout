@@ -40,6 +40,7 @@ file(GLOB src
 	"main.cpp"
 	"constants/*"
 	"game/*"
+	"game/ui/*"
 	"game/map/*"
 	"game/entities/*"
 )

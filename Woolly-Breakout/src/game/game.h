@@ -1,6 +1,6 @@
 #pragma once
 #include "map/map.h"
-#include "gameWindow.h"
+#include "ui/gameWindow.h"
 #include "SDL.h"
 
 class Game {

@@ -1,11 +1,11 @@
 #include "gameWindow.h"
-#include "../constants/constants.h"
-#include "map/utilities.h"
-#include "entities/safe-zone.h"
+#include "elements.h"
+#include "../../constants/constants.h"
+#include "../map/utilities.h"
+#include "../entities/safe-zone.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdexcept>
-#include <memory>
 #include <functional>
 #include <string>
 #include <array>
@@ -16,8 +16,8 @@ GameWindow::GameWindow() {
     allocateUIResources();
 }
 
-void GameWindow::startGameLoop(const std::function<void(SDL_Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map) {
-    SDL_Event event{};
+void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map) {
+    SDL::Event event{};
     constexpr int delayTime{ 1000 / Constants::fps };
 		
 	renderMap(map);
@@ -74,15 +74,15 @@ void GameWindow::allocateImages() {
 		textures.emplace(name, loadImage("../../res/" + name + ".png"));
 }
 
-SDL_Texture* GameWindow::loadImage(std::string_view path) {
+SDL::Texture* GameWindow::loadImage(std::string_view path) {
 	
-    std::unique_ptr<SDL_Surface, GameWindow::deleter> temp;
+    Smart::Surface temp;
 	temp.reset( IMG_Load(path.data()) );
 
 	if (!temp)
 		throw std::runtime_error(std::string("Can\'t load image from path: ") + std::string(path));
 
-	SDL_Texture* texture{ SDL_CreateTextureFromSurface(renderer.get(), temp.get()) };
+	SDL::Texture* texture{ SDL_CreateTextureFromSurface(renderer.get(), temp.get()) };
 
 	if (!texture)
 		throw std::runtime_error(std::string("Can\'t create image texture from path: ") + std::string(path));
