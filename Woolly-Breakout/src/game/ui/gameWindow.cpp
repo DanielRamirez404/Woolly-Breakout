@@ -55,8 +55,9 @@ void GameWindow::allocateUIResources() {
 	if (!window)
 		throw std::runtime_error("Window Initialization Error");
 
-	renderer.reset(SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED));
-
+	
+	renderer.setRenderer(window.get());
+	
 	if (!renderer)
 		throw std::runtime_error("Renderer Initialization Error");   
 
@@ -64,78 +65,67 @@ void GameWindow::allocateUIResources() {
 }
 
 void GameWindow::allocateImages() {
-	SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
+	renderer.setTransparentMode();
 
 	std::array<std::string, 6> names = { 
 		{ "grass", "wall", "player", "key", "door", "frame" } 
 	};
 
-	for (const std::string& name : names)
-		textures.emplace(name, loadImage("../../res/" + name + ".png"));
-}
-
-SDL::Texture* GameWindow::loadImage(std::string_view path) {
-	
-    Smart::Surface temp;
-	temp.reset( IMG_Load(path.data()) );
-
-	if (!temp)
-		throw std::runtime_error(std::string("Can\'t load image from path: ") + std::string(path));
-
-	SDL::Texture* texture{ SDL_CreateTextureFromSurface(renderer.get(), temp.get()) };
-
-	if (!texture)
-		throw std::runtime_error(std::string("Can\'t create image texture from path: ") + std::string(path));
-
-	return texture;
+	for (std::string_view name : names)
+		renderer.loadTexture(name.data());
 }
 
 void GameWindow::renderMap(const Map& map) {
-
-	SDL_RenderClear(renderer.get());
+	renderer.clear();
 
 	const Map::Matrix& matrix = map.getMatrix();
+	const SafeZone& safeZone{ map.getSafeZone() };
+	const Coordinates<float>& player{ map.getPlayer() };
 
 	for (int i{0}; i < Constants::mapSize; ++i)
 		for (int j{0}; j < Constants::mapSize; ++j) {
 
-			SDL_Rect square{ j * Constants::tileWidth, Constants::statusBarLength + (i * Constants::tileLength), Constants::tileWidth, Constants::tileLength };
-			
-			const char& tile{ matrix[i][j] }; 
+			renderer.setArea(j * Constants::tileWidth, Constants::statusBarLength + i * Constants::tileLength, Constants::tileWidth, Constants::tileLength);
 
-			auto& texture = (tile == '1') ? textures["wall"] : textures["grass"];
-			SDL_RenderCopy(renderer.get(), texture.get(), nullptr, &square);
+			switch (matrix[i][j]) {
+				case '0':
+					renderer.addTexture("grass");
+					break;
+				case '1':
+					renderer.addTexture("wall");
+					break;
+				case '2':
+					renderer.addTexture("grass");
+					if (!safeZone.isOpen())
+						renderer.addTexture("door");
+					break;
+				default:
+					renderer.addTexture("grass");
+					break;
+			} 				
 		}
 
-	const SafeZone& safeZone{ map.getSafeZone() };
-	const Coordinates<int>& door{ safeZone.getDoor() };
-	auto& doorTexture{ safeZone.isOpen() ? textures["grass"] : textures["door"] };
-
-	SDL_Rect doorTile{ door.j  * Constants::tileWidth, Constants::statusBarLength + door.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength };
-	SDL_RenderCopy(renderer.get(), doorTexture.get(), nullptr, &doorTile);
-
 	for (const auto& key : safeZone.getKeys()) {
-		SDL_Rect tile{ key.j * Constants::tileWidth, Constants::statusBarLength + key.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength };
-		SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &tile);
+		renderer.setArea(key.j * Constants::tileWidth, Constants::statusBarLength + key.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength);
+		renderer.addTexture("key");		
 	}
 
-	const Coordinates<float>& player{ map.getPlayer() };
+	renderer.setArea(static_cast<int>(player.j * Constants::tileWidth), Constants::statusBarLength + static_cast<int>(player.i * Constants::tileLength), Constants::tileWidth, Constants::tileLength);
+	renderer.addTexture("player");
 
-	SDL_Rect tile{ static_cast<int>(player.j * Constants::tileWidth), Constants::statusBarLength + static_cast<int>(player.i * Constants::tileLength), Constants::tileWidth, Constants::tileLength };
-	SDL_RenderCopy(renderer.get(), textures["player"].get(), nullptr, &tile);
-
-	SDL_Rect statusRect{ 0, 0, Constants::windowSize, Constants::statusBarLength};
-	SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);
-	SDL_RenderFillRect(renderer.get(), &statusRect);
+	renderer.setArea(0, 0, Constants::windowSize, Constants::statusBarLength);
+	renderer.addColor(0, 0, 0, 255);
 
 	int pickedKeys{ safeZone.getPickedUpKeys() };
 
 	for (int i{0}; i < 3; ++i) {
-		SDL_Rect frame{ Constants::framePadding + Constants::frameSize * i, Constants::framePadding, Constants::frameSize, Constants::frameSize};
-		SDL_RenderCopy(renderer.get(), textures["frame"].get(), nullptr, &frame);
+
+		renderer.setArea(Constants::framePadding + Constants::frameSize * i, Constants::framePadding, Constants::frameSize);
+		renderer.addTexture("frame");
+		
 		if (i < pickedKeys)
-			SDL_RenderCopy(renderer.get(), textures["key"].get(), nullptr, &frame);
+			renderer.addTexture("key");
 	}
 
-	SDL_RenderPresent(renderer.get());
+	renderer.render();
 }

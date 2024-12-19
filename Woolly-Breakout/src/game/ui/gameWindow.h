@@ -1,10 +1,8 @@
 #pragma once
 #include "elements.h"
+#include "renderer.h"
 #include "../map/map.h"
 #include <functional>
-#include <string_view>
-#include <string>
-#include <unordered_map>
 
 class GameWindow {
 	public:
@@ -15,13 +13,11 @@ class GameWindow {
 	private:
 
 		Smart::Window window{ nullptr };
-		Smart::Renderer renderer{ nullptr };
-        std::unordered_map<std::string, Smart::Texture> textures{};
+		Renderer renderer{};
 
 		void initializeLibraries();
         void allocateUIResources();
         void allocateImages();
 
-		SDL::Texture* loadImage(std::string_view path);
 		void renderMap(const Map& map);
 };
