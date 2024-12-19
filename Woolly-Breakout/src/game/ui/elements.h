@@ -9,6 +9,7 @@ namespace SDL
     using Texture = SDL_Texture;
     using Surface = SDL_Surface;
     using Event = SDL_Event;
+    using Rect = SDL_Rect;
 }
 
 
