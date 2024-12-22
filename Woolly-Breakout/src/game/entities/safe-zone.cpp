@@ -23,10 +23,8 @@ bool SafeZone::isKey(const Coordinates<int>& coordinates) {
         if (key == coordinates)
             return true;
 
-    return true;
+    return false;
 }
-
-#include <iostream>
 
 bool SafeZone::isOpen() const {
     return keys.empty();
