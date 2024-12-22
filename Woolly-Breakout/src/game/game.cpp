@@ -51,8 +51,10 @@ void Game::handleLogic() {
 
 		Coordinates<int> playerCoordinates = { static_cast<int>(player.getCoordinates().i), static_cast<int>(player.getCoordinates().j) };
 
-		if (safeZone.isKey(playerCoordinates))
+		if (safeZone.isKey(playerCoordinates)) {
 			safeZone.pickKeyUp(playerCoordinates);
+			map.getMatrix()[playerCoordinates.i][playerCoordinates.j] = '0';
+		}
 
 	} else {
 		player.startMove();

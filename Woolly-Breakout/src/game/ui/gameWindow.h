@@ -17,7 +17,10 @@ class GameWindow {
 
 		void initializeLibraries();
         void allocateUIResources();
-        void allocateImages();
 
 		void renderMap(const Map& map);
+		void addStatusToRenderer(const Map& map);
+		void addMapToRenderer(const Map& map);
+		void addPlayerToRenderer(const Map& map);
+
 };
