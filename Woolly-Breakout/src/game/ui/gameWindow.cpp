@@ -98,9 +98,9 @@ void GameWindow::addMapToRenderer(const Map& map) {
 	constexpr int tilesToCenter{ Constants::middleRenderedTile - 1 };
 
 	const int min_i{ static_cast<int>(player.i) - tilesToCenter };
-	const int max_i{ static_cast<int>(player.i) + tilesToCenter };
+	const int max_i{ static_cast<int>(player.i) + tilesToCenter + 1 };
 	const int min_j{ static_cast<int>(player.j) - tilesToCenter };
-	const int max_j{ static_cast<int>(player.j) + tilesToCenter };
+	const int max_j{ static_cast<int>(player.j) + tilesToCenter + 1 };
 
 	auto increase_i{ [&](int& i, int&i_count) {  
 		++i;
@@ -112,17 +112,21 @@ void GameWindow::addMapToRenderer(const Map& map) {
 		++j_count;
 	}};
 
+	const float i_off_constant{ player.i - static_cast<float>(static_cast<int>(player.i)) };
+	const float j_off_constant{ player.j - static_cast<float>(static_cast<int>(player.j))};
+
+
 	for (int i{min_i}, i_count{0}; i <= max_i; increase_i(i, i_count))
 		for (int j{min_j}, j_count{0}; j <= max_j; increase_j(j, j_count)) {
 
 			char tile{};
 
-			if (i < 0 || j < 0 || i > Constants::mapSize || j > Constants::mapSize)
+			if (i < 0 || j < 0 || i >= Constants::mapSize || j >= Constants::mapSize)
 				continue;
 
 			tile = map.getMatrix()[i][j];			
 
-			renderer.setArea(j_count * Constants::tileSize, i_count * Constants::tileSize, Constants::tileSize);
+			renderer.setArea((j_count - j_off_constant) * Constants::tileSize, (i_count - i_off_constant) * Constants::tileSize, Constants::tileSize);
 
 			switch (tile) {
 				case '0':
