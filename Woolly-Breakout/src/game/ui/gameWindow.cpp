@@ -68,9 +68,9 @@ void GameWindow::allocateUIResources() {
 void GameWindow::renderMap(const Map& map) {
 	renderer.clear();
 
-	addStatusToRenderer(map);
 	addMapToRenderer(map);
 	addPlayerToRenderer(map);
+	addStatusToRenderer(map);
 
 	renderer.render();
 }
@@ -92,12 +92,39 @@ void GameWindow::addStatusToRenderer(const Map& map) {
 }
 
 void GameWindow::addMapToRenderer(const Map& map) {
-	for (int i{0}; i < Constants::mapSize; ++i)
-		for (int j{0}; j < Constants::mapSize; ++j) {
 
-			renderer.setArea(j * Constants::tileWidth, Constants::statusBarLength + i * Constants::tileLength, Constants::tileWidth, Constants::tileLength);
+	const Coordinates<float>& player{ map.getPlayerCoordinates() };
 
-			switch (map.getMatrix()[i][j]) {
+	constexpr int tilesToCenter{ Constants::middleRenderedTile - 1 };
+
+	const int min_i{ static_cast<int>(player.i) - tilesToCenter };
+	const int max_i{ static_cast<int>(player.i) + tilesToCenter };
+	const int min_j{ static_cast<int>(player.j) - tilesToCenter };
+	const int max_j{ static_cast<int>(player.j) + tilesToCenter };
+
+	auto increase_i{ [&](int& i, int&i_count) {  
+		++i;
+		++i_count;
+	}};
+
+	auto increase_j{ [&](int& j, int&j_count) {  
+		++j;
+		++j_count;
+	}};
+
+	for (int i{min_i}, i_count{0}; i <= max_i; increase_i(i, i_count))
+		for (int j{min_j}, j_count{0}; j <= max_j; increase_j(j, j_count)) {
+
+			char tile{};
+
+			if (i < 0 || j < 0 || i > Constants::mapSize || j > Constants::mapSize)
+				continue;
+
+			tile = map.getMatrix()[i][j];			
+
+			renderer.setArea(j_count * Constants::tileSize, i_count * Constants::tileSize, Constants::tileSize);
+
+			switch (tile) {
 				case '0':
 					renderer.addTexture("grass");
 					break;
@@ -120,6 +147,6 @@ void GameWindow::addMapToRenderer(const Map& map) {
 
 void GameWindow::addPlayerToRenderer(const Map& map) {
 	const Coordinates<float>& player{ map.getPlayerCoordinates() };
-	renderer.setArea(static_cast<int>(player.j * Constants::tileWidth), Constants::statusBarLength + static_cast<int>(player.i * Constants::tileLength), Constants::tileWidth, Constants::tileLength);
+	renderer.setArea(Constants::playersTileStart, Constants::playersTileStart, Constants::tileSize);
 	renderer.addTexture("player");
 }
