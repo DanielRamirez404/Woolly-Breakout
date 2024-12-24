@@ -14,10 +14,13 @@ class Map {
 		using Matrix = std::array<std::array<char, 5>, 5>;
 		
 		const Matrix& getMatrix() const;
-		const Coordinates<float>& getPlayer() const;
+		const Coordinates<float>& getPlayerCoordinates() const;
+		int getPickedUpKeys() const;
+		bool isSafeZoneOpen() const;
+
+		Matrix& getMatrix();
 		Player& getPlayer();
 		SafeZone& getSafeZone();
-		const SafeZone& getSafeZone() const;
 
 	private:
 

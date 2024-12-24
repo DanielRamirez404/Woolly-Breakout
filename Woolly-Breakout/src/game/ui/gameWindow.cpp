@@ -7,8 +7,6 @@
 #include "SDL_image.h"
 #include <stdexcept>
 #include <functional>
-#include <string>
-#include <array>
 #include <string_view>
 
 GameWindow::GameWindow() {
@@ -49,27 +47,19 @@ void GameWindow::initializeLibraries() {
 }
 
 void GameWindow::allocateUIResources() {
-    
     window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Constants::windowSize, Constants::windowSize, SDL_WINDOW_SHOWN));
 
 	if (!window)
 		throw std::runtime_error("Window Initialization Error");
-
 	
 	renderer.setRenderer(window.get());
 	
 	if (!renderer)
 		throw std::runtime_error("Renderer Initialization Error");   
 
-    allocateImages();
-}
+    renderer.setTransparentMode();
 
-void GameWindow::allocateImages() {
-	renderer.setTransparentMode();
-
-	std::array<std::string, 6> names = { 
-		{ "grass", "wall", "player", "key", "door", "frame" } 
-	};
+	constexpr std::string_view names[] { "grass", "wall", "player", "key", "door", "frame" };
 
 	for (std::string_view name : names)
 		renderer.loadTexture(name.data());
@@ -78,45 +68,18 @@ void GameWindow::allocateImages() {
 void GameWindow::renderMap(const Map& map) {
 	renderer.clear();
 
-	const Map::Matrix& matrix = map.getMatrix();
-	const SafeZone& safeZone{ map.getSafeZone() };
-	const Coordinates<float>& player{ map.getPlayer() };
+	addMapToRenderer(map);
+	addPlayerToRenderer(map);
+	addStatusToRenderer(map);
 
-	for (int i{0}; i < Constants::mapSize; ++i)
-		for (int j{0}; j < Constants::mapSize; ++j) {
+	renderer.render();
+}
 
-			renderer.setArea(j * Constants::tileWidth, Constants::statusBarLength + i * Constants::tileLength, Constants::tileWidth, Constants::tileLength);
-
-			switch (matrix[i][j]) {
-				case '0':
-					renderer.addTexture("grass");
-					break;
-				case '1':
-					renderer.addTexture("wall");
-					break;
-				case '2':
-					renderer.addTexture("grass");
-					if (!safeZone.isOpen())
-						renderer.addTexture("door");
-					break;
-				default:
-					renderer.addTexture("grass");
-					break;
-			} 				
-		}
-
-	for (const auto& key : safeZone.getKeys()) {
-		renderer.setArea(key.j * Constants::tileWidth, Constants::statusBarLength + key.i * Constants::tileLength, Constants::tileWidth, Constants::tileLength);
-		renderer.addTexture("key");		
-	}
-
-	renderer.setArea(static_cast<int>(player.j * Constants::tileWidth), Constants::statusBarLength + static_cast<int>(player.i * Constants::tileLength), Constants::tileWidth, Constants::tileLength);
-	renderer.addTexture("player");
-
+void GameWindow::addStatusToRenderer(const Map& map) {
 	renderer.setArea(0, 0, Constants::windowSize, Constants::statusBarLength);
 	renderer.addColor(0, 0, 0, 255);
 
-	int pickedKeys{ safeZone.getPickedUpKeys() };
+	int pickedKeys{ map.getPickedUpKeys() };
 
 	for (int i{0}; i < 3; ++i) {
 
@@ -126,6 +89,68 @@ void GameWindow::renderMap(const Map& map) {
 		if (i < pickedKeys)
 			renderer.addTexture("key");
 	}
+}
 
-	renderer.render();
+void GameWindow::addMapToRenderer(const Map& map) {
+
+	const Coordinates<float>& player{ map.getPlayerCoordinates() };
+
+	constexpr int tilesToCenter{ Constants::middleRenderedTile - 1 };
+
+	const int min_i{ static_cast<int>(player.i) - tilesToCenter };
+	const int max_i{ static_cast<int>(player.i) + tilesToCenter + 1 };
+	const int min_j{ static_cast<int>(player.j) - tilesToCenter };
+	const int max_j{ static_cast<int>(player.j) + tilesToCenter + 1 };
+
+	auto increase_i{ [&](int& i, int&i_count) {  
+		++i;
+		++i_count;
+	}};
+
+	auto increase_j{ [&](int& j, int&j_count) {  
+		++j;
+		++j_count;
+	}};
+
+	const float i_off_constant{ player.i - static_cast<float>(static_cast<int>(player.i)) };
+	const float j_off_constant{ player.j - static_cast<float>(static_cast<int>(player.j))};
+
+
+	for (int i{min_i}, i_count{0}; i <= max_i; increase_i(i, i_count))
+		for (int j{min_j}, j_count{0}; j <= max_j; increase_j(j, j_count)) {
+
+			char tile{};
+
+			if (i < 0 || j < 0 || i >= Constants::mapSize || j >= Constants::mapSize)
+				continue;
+
+			tile = map.getMatrix()[i][j];			
+
+			renderer.setArea((j_count - j_off_constant) * Constants::tileSize, (i_count - i_off_constant) * Constants::tileSize, Constants::tileSize);
+
+			switch (tile) {
+				case '0':
+					renderer.addTexture("grass");
+					break;
+				case '1':
+					renderer.addTexture("wall");
+					break;
+				case '2':
+					renderer.addTexture("grass");
+					if (!map.isSafeZoneOpen())
+						renderer.addTexture("door");
+					break;
+				case '3':
+					renderer.addTexture("grass");
+					renderer.addTexture("key");
+				default:
+					break;
+			} 				
+		}
+}
+
+void GameWindow::addPlayerToRenderer(const Map& map) {
+	const Coordinates<float>& player{ map.getPlayerCoordinates() };
+	renderer.setArea(Constants::playersTileStart, Constants::playersTileStart, Constants::tileSize);
+	renderer.addTexture("player");
 }

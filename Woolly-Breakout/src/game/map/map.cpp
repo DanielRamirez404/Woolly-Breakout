@@ -24,7 +24,11 @@ const Map::Matrix& Map::getMatrix() const {
 	return matrix;
 }
 
-const Coordinates<float>& Map::getPlayer() const {
+Map::Matrix& Map::getMatrix() {
+	return matrix;
+}
+
+const Coordinates<float>& Map::getPlayerCoordinates() const {
 	return player.getCoordinates();
 }
 
@@ -36,6 +40,10 @@ SafeZone& Map::getSafeZone() {
 	return safeZone;
 }
 
-const SafeZone& Map::getSafeZone() const {
-	return safeZone;
+int Map::getPickedUpKeys() const {
+	return safeZone.getPickedUpKeys();
+}
+
+bool Map::isSafeZoneOpen() const {
+	return safeZone.isOpen();
 }
