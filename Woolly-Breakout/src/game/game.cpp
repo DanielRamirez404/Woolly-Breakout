@@ -43,20 +43,5 @@ void Game::handleEvents(SDL_Event& event) {
 }
 
 void Game::handleLogic() {
-	Player& player = map.getPlayer();
-	SafeZone& safeZone = map.getSafeZone();
-
-	if (player.isMoving()) {
-		player.keepMoving();
-
-		Coordinates<int> playerCoordinates = { static_cast<int>(player.getCoordinates().i), static_cast<int>(player.getCoordinates().j) };
-
-		if (safeZone.isKey(playerCoordinates)) {
-			safeZone.pickKeyUp(playerCoordinates);
-			map.getMatrix()[playerCoordinates.i][playerCoordinates.j] = '0';
-		}
-
-	} else {
-		player.startMove();
-	}
+	map.handleInteractions();
 }

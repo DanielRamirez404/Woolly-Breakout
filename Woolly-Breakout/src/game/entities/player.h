@@ -14,6 +14,7 @@ class Player {
         void keepMoving();
         bool isMoving();
         const Coordinates<float>& getCoordinates() const;
+        const Coordinates<int> getRoundedCoordinates() const;
 
     private:
         

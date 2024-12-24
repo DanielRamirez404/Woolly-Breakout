@@ -93,14 +93,15 @@ void GameWindow::addStatusToRenderer(const Map& map) {
 
 void GameWindow::addMapToRenderer(const Map& map) {
 
-	const Coordinates<float>& player{ map.getPlayerCoordinates() };
+	const Coordinates<float>& player{ map.getPlayer().getCoordinates() };
+	const Coordinates<int> roundedPlayer{ map.getPlayer().getRoundedCoordinates() };
 
 	constexpr int tilesToCenter{ Constants::Map::TileRendering::center - 1 };
 
-	const int min_i{ static_cast<int>(player.i) - tilesToCenter };
-	const int max_i{ static_cast<int>(player.i) + tilesToCenter + 1 };
-	const int min_j{ static_cast<int>(player.j) - tilesToCenter };
-	const int max_j{ static_cast<int>(player.j) + tilesToCenter + 1 };
+	const int min_i{ roundedPlayer.i - tilesToCenter };
+	const int max_i{ roundedPlayer.i + tilesToCenter + 1 };
+	const int min_j{ roundedPlayer.j - tilesToCenter };
+	const int max_j{ roundedPlayer.j + tilesToCenter + 1 };
 
 	auto increase_i{ [&](int& i, int&i_count) {  
 		++i;
@@ -112,19 +113,16 @@ void GameWindow::addMapToRenderer(const Map& map) {
 		++j_count;
 	}};
 
-	const float i_off_constant{ player.i - static_cast<float>(static_cast<int>(player.i)) };
-	const float j_off_constant{ player.j - static_cast<float>(static_cast<int>(player.j))};
-
+	const float i_off_constant{ player.i - static_cast<float>(roundedPlayer.i) };
+	const float j_off_constant{ player.j - static_cast<float>(roundedPlayer.j)};
 
 	for (int i{min_i}, i_count{0}; i <= max_i; increase_i(i, i_count))
 		for (int j{min_j}, j_count{0}; j <= max_j; increase_j(j, j_count)) {
 
-			char tile{};
-
 			if (i < 0 || j < 0 || i >= Constants::Map::Matrix::size || j >= Constants::Map::Matrix::size)
 				continue;
 
-			tile = map.getMatrix()[i][j];			
+			char tile { map(i, j) };			
 
 			renderer.setArea((j_count - j_off_constant) * Constants::Map::TileRendering::size, (i_count - i_off_constant) * Constants::Map::TileRendering::size, Constants::Map::TileRendering::size);
 
@@ -150,7 +148,7 @@ void GameWindow::addMapToRenderer(const Map& map) {
 }
 
 void GameWindow::addPlayerToRenderer(const Map& map) {
-	const Coordinates<float>& player{ map.getPlayerCoordinates() };
+	const Coordinates<float>& player{ map.getPlayer().getCoordinates() };
 	renderer.setArea(Constants::Map::TileRendering::players, Constants::Map::TileRendering::players, Constants::Map::TileRendering::size);
 	renderer.addTexture("player");
 }

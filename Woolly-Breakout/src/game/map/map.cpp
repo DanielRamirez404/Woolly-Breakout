@@ -20,30 +20,38 @@ Map::Map() {
 			}
 };
 
-const Map::Matrix& Map::getMatrix() const {
-	return matrix;
-}
-
-Map::Matrix& Map::getMatrix() {
-	return matrix;
-}
-
-const Coordinates<float>& Map::getPlayerCoordinates() const {
-	return player.getCoordinates();
-}
-
-Player& Map::getPlayer() {
-	return player;
-}
-
-SafeZone& Map::getSafeZone() {
-	return safeZone;
-}
-
 int Map::getPickedUpKeys() const {
 	return safeZone.getPickedUpKeys();
 }
 
 bool Map::isSafeZoneOpen() const {
 	return safeZone.isOpen();
+}
+
+void Map::handleInteractions() {
+	if (player.isMoving()) {
+		player.keepMoving();
+
+		Coordinates<int> playerCoordinates = { player.getRoundedCoordinates() };
+
+		if (safeZone.isKey(playerCoordinates)) {
+			safeZone.pickKeyUp(playerCoordinates);
+			matrix[playerCoordinates.i][playerCoordinates.j] = '0';
+		}
+
+	} else {
+		player.startMove();
+	}
+}
+
+Player& Map::getPlayer() {
+	return player;
+}
+
+const Player& Map::getPlayer() const {
+	return player;
+}
+
+const char Map::operator()(int i, int j) const {
+	return matrix[i][j];
 }

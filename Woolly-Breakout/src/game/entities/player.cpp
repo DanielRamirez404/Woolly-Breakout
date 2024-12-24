@@ -11,6 +11,10 @@ const Coordinates<float>& Player::getCoordinates() const {
     return coordinates;
 }
 
+const Coordinates<int> Player::getRoundedCoordinates() const {
+	return { static_cast<int>(coordinates.i), static_cast<int>(coordinates.j) };
+}
+
 bool Player::isMoving() {
     return movement.has_value() && !movement.value().isDone();
 }
