@@ -4,20 +4,20 @@ An original 2D game made with ```C++``` and the ```SDL2``` library used as a way
 
 ## Requirements
 
-To successfully run the app, you should have both ```Make``` and ```CMake``` installed on your device (as well as any ```C++``` compiler) so that you can build the executable file. You should also have the ```SDL2``` library somewhere on your computer, but don't worry, it's way simpler than it sounds, here's a breakdown on what you should do, depending on your operating system:
+To successfully run the app, you should have both ```Make``` and ```CMake``` installed on your device (as well as any ```C++``` compiler) so that you can build the executable file. You should also have the ```SDL2``` and ```SDL2_Image``` libraries somewhere on your computer, but don't worry, it's way simpler than it sounds, here's a breakdown on what you should do, depending on your operating system:
 
 ### Linux
 
-On linux it's pretty easy to install all of the necessary tools, you can open the command line and then use your distribution's package manager to do so. For instance, using debian-based distributions as an example:
+On linux it's pretty easy to install all of the required tools, since you can open the command line and then use your distribution's package manager to do so. For instance, using debian-based distributions as an example:
 
 ```
-sudo apt install cmake libsdl2-dev g++
+sudo apt install cmake libsdl2-dev libsdl-image1.2-dev g++
 ```
 
-Notice how this will install ```CMake```, the ```SDL2``` library and the ```g++``` compiler, respectively.
+Notice how this will install ```CMake```, the ```SDL2``` and ```SDL2_Image``` libraries and the ```g++``` compiler, respectively.
 
 > [!NOTE] 
-> You should have ```Make``` installed by default, but if that is not your case, you can always add make as an argument. 
+> You should have ```Make``` installed by default, but if that is not your case, you can always add ```make``` as an argument. 
 
 > _Source: [Using SDL2 with CMake][1]_ 
 
@@ -33,12 +33,12 @@ First, you can easily install ```CMake``` from [its official website][2]. And si
 > [!IMPORTANT]
 > Don't forget to add both installations' directories to the PATH environment variable, so that you can access the  ```make``` and ```cmake``` commands from the command prompt.
 
-Now, you can download the ```SDL2``` library by going into its [official website][6] and clicking on the releases link.
+Now, you can download the ```SDL2``` library by going into its [official website][6] and clicking on the releases link. Similarly, for the ```SDL2_Image```, you can also use its [releases page][7].
 
 > [!NOTE]
-> You can also just use the direct link of current version at redaction time: [SDL2 2.30.8][7]
+> You can also just use the direct links of the latest versions at redaction time: [SDL2 2.30.8][8] and [SDL2_Image 2.8.3][9]
 
-You must download the ```SDL2-devel-(version)-VC.zip``` file. If you wish no aditional settings, you can extract it at the ```C:\``` directory and rename the extracted folder as ```SDL2```.
+You must download the ```SDL2-devel-(version)-VC.zip``` and ```SDL2_image-(version)-VC.zip``` files. If you wish no aditional settings, you can extract it at the ```C:\``` directory and rename the extracted folder as ```SDL2``` and SDL2_Image, respectively.
 
 > [!WARNING]
 > Otherwise (or if you've installed Windows on another disk) you should pay attention to the **How to Run**'s **Configuring CMake** section.
@@ -117,5 +117,11 @@ Finally, run and enjoy!
 <!-- SDL's official Website -->
 [6]: https://www.libsdl.org/
 
+<!-- SDL's Image library relases webpage -->
+[7]: https://www.libsdl.org/projects/SDL_image/release/ 
+
 <!-- Latest SDL2 Version Link -->
-[7]: https://github.com/libsdl-org/SDL/releases/tag/release-2.30.8
+[8]: https://github.com/libsdl-org/SDL/releases/tag/release-2.30.8
+
+<!-- Latest SDL2_Image Version Link -->
+[9]: https://github.com/libsdl-org/SDL_image/releases/tag/release-2.8.3
