@@ -4,8 +4,8 @@
 #include "../entities/safe-zone.h"
 
 Map::Map() {
-	for (int i{0}; i < Constants::mapSize; ++i)
-		for (int j{0}; j < Constants::mapSize; ++j)
+	for (int i{0}; i < Constants::Map::Matrix::size; ++i)
+		for (int j{0}; j < Constants::Map::Matrix::size; ++j)
 			switch (matrix[i][j]) {
 				case '3':
 					safeZone.addKey({i, j});

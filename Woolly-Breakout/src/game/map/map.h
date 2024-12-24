@@ -2,6 +2,7 @@
 #include "../entities/player.h"
 #include "../entities/safe-zone.h"
 #include "utilities.h"
+#include "../../constants/constants.h"
 #include <array>
 
 class Map {
@@ -11,7 +12,7 @@ class Map {
 
 		Map();
 
-		using Matrix = std::array<std::array<char, 5>, 5>;
+		using Matrix = std::array<std::array<char, Constants::Map::Matrix::size>, Constants::Map::Matrix::size>;
 		
 		const Matrix& getMatrix() const;
 		const Coordinates<float>& getPlayerCoordinates() const;

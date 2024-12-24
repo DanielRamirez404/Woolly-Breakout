@@ -1,16 +1,37 @@
 #pragma once
 
 namespace Constants {
-    inline constexpr int windowSize{ 500 };
-    inline constexpr int statusBarLength{ windowSize / 6 };
-    inline constexpr int mapLength{ windowSize - statusBarLength };
-    inline constexpr int mapSize{ 5 };
-    inline constexpr int renderedTilesPerRow{ 5 }; //must be odd
-    inline constexpr int middleRenderedTile{ (renderedTilesPerRow + 1) / 2 };
-    inline constexpr int tileSize{ windowSize / renderedTilesPerRow };
-    inline constexpr int playersTileStart{ windowSize - middleRenderedTile * tileSize };
-    inline constexpr int fps{ 24 };
-    inline constexpr int moveFrames{ fps / 4 };
-    inline constexpr int frameSize{ windowSize / 8 };
-    inline constexpr int framePadding{ (statusBarLength - frameSize) / 2 };
+    
+    namespace Window {
+        inline constexpr int size{ 500 };
+    }
+
+    namespace StatusBar {
+        inline constexpr int length{ Window::size / 6 };
+
+        namespace Frame {
+            inline constexpr int size{ Window::size / 8 };
+            inline constexpr int padding{ StatusBar::length - size };
+        }
+    }
+
+    namespace Map {
+        inline constexpr int length{ Window::size - StatusBar::length };
+        
+        namespace Matrix {
+            inline constexpr int size{ 5 };
+        }
+
+        namespace TileRendering {
+            inline constexpr int perRow{ 5 }; // must be odd
+            inline constexpr int center{ (perRow + 1) / 2 };
+            inline constexpr int size{ Window::size / perRow };
+            inline constexpr int players{ Window::size - center * size };
+        }
+    }
+
+    namespace Frames {
+        inline constexpr int fps{ 24 };
+        inline constexpr int perMove{ fps / 4 };
+    }
 }

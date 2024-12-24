@@ -16,7 +16,7 @@ GameWindow::GameWindow() {
 
 void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map) {
     SDL::Event event{};
-    constexpr int delayTime{ 1000 / Constants::fps };
+    constexpr int delayTime{ 1000 / Constants::Frames::fps };
 		
 	renderMap(map);
 
@@ -47,7 +47,7 @@ void GameWindow::initializeLibraries() {
 }
 
 void GameWindow::allocateUIResources() {
-    window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Constants::windowSize, Constants::windowSize, SDL_WINDOW_SHOWN));
+    window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Constants::Window::size, Constants::Window::size, SDL_WINDOW_SHOWN));
 
 	if (!window)
 		throw std::runtime_error("Window Initialization Error");
@@ -76,14 +76,14 @@ void GameWindow::renderMap(const Map& map) {
 }
 
 void GameWindow::addStatusToRenderer(const Map& map) {
-	renderer.setArea(0, 0, Constants::windowSize, Constants::statusBarLength);
+	renderer.setArea(0, 0, Constants::Window::size, Constants::StatusBar::length);
 	renderer.addColor(0, 0, 0, 255);
 
 	int pickedKeys{ map.getPickedUpKeys() };
 
 	for (int i{0}; i < 3; ++i) {
 
-		renderer.setArea(Constants::framePadding + Constants::frameSize * i, Constants::framePadding, Constants::frameSize);
+		renderer.setArea(Constants::StatusBar::Frame::padding + Constants::StatusBar::Frame::size * i, Constants::StatusBar::Frame::padding, Constants::StatusBar::Frame::size);
 		renderer.addTexture("frame");
 		
 		if (i < pickedKeys)
@@ -95,7 +95,7 @@ void GameWindow::addMapToRenderer(const Map& map) {
 
 	const Coordinates<float>& player{ map.getPlayerCoordinates() };
 
-	constexpr int tilesToCenter{ Constants::middleRenderedTile - 1 };
+	constexpr int tilesToCenter{ Constants::Map::TileRendering::center - 1 };
 
 	const int min_i{ static_cast<int>(player.i) - tilesToCenter };
 	const int max_i{ static_cast<int>(player.i) + tilesToCenter + 1 };
@@ -121,12 +121,12 @@ void GameWindow::addMapToRenderer(const Map& map) {
 
 			char tile{};
 
-			if (i < 0 || j < 0 || i >= Constants::mapSize || j >= Constants::mapSize)
+			if (i < 0 || j < 0 || i >= Constants::Map::Matrix::size || j >= Constants::Map::Matrix::size)
 				continue;
 
 			tile = map.getMatrix()[i][j];			
 
-			renderer.setArea((j_count - j_off_constant) * Constants::tileSize, (i_count - i_off_constant) * Constants::tileSize, Constants::tileSize);
+			renderer.setArea((j_count - j_off_constant) * Constants::Map::TileRendering::size, (i_count - i_off_constant) * Constants::Map::TileRendering::size, Constants::Map::TileRendering::size);
 
 			switch (tile) {
 				case '0':
@@ -151,6 +151,6 @@ void GameWindow::addMapToRenderer(const Map& map) {
 
 void GameWindow::addPlayerToRenderer(const Map& map) {
 	const Coordinates<float>& player{ map.getPlayerCoordinates() };
-	renderer.setArea(Constants::playersTileStart, Constants::playersTileStart, Constants::tileSize);
+	renderer.setArea(Constants::Map::TileRendering::players, Constants::Map::TileRendering::players, Constants::Map::TileRendering::size);
 	renderer.addTexture("player");
 }
