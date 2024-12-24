@@ -8,11 +8,15 @@ class Player {
     public:
 
         Player(const Coordinates<int>& mapCoordinates);
+        
         void queueMove(Direction direction);
+        std::optional<Coordinates<int>> getTargetedCoordinates();
+
         void startMove();
         void stopMove();
         void keepMoving();
         bool isMoving();
+
         const Coordinates<float>& getCoordinates() const;
         const Coordinates<int> getRoundedCoordinates() const;
 

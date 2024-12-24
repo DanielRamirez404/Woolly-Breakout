@@ -23,6 +23,34 @@ void Player::queueMove(Direction direction) {
     queuedDirection = direction;
 }
 
+std::optional<Coordinates<int>> Player::getTargetedCoordinates() {
+	
+	if (!queuedDirection)
+		return std::nullopt;
+	
+	Coordinates<float> targetedCoordinates{};
+
+	switch (queuedDirection.value()) {
+		case Direction::UP:
+			targetedCoordinates = { coordinates.i - 1, coordinates.j };
+			break;
+
+		case Direction::DOWN:
+			targetedCoordinates = { coordinates.i + 1, coordinates.j };
+			break;
+
+		case Direction::LEFT:
+			targetedCoordinates = { coordinates.i, coordinates.j - 1 };
+			break;
+		
+		case Direction::RIGHT:
+			targetedCoordinates = { coordinates.i, coordinates.j + 1 };
+			break;
+	}
+
+	return Coordinates<int>{ static_cast<int>(targetedCoordinates.i), static_cast<int>(targetedCoordinates.j) };
+}
+
 void Player::startMove() {
     if (!queuedDirection.has_value())
         return;

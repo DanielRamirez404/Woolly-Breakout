@@ -16,6 +16,7 @@ class Map {
 		
 		int getPickedUpKeys() const;
 		bool isSafeZoneOpen() const;
+		bool isLegalMove(const Coordinates<int>& coordinates) const;
 
 		void handleInteractions();
 
@@ -23,6 +24,7 @@ class Map {
 		const Player& getPlayer() const;
 
 		const char operator()(int i, int j) const;
+		static bool isOutOfBounds(int i, int j); 
 
 	private:
 

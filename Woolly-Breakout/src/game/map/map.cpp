@@ -28,6 +28,19 @@ bool Map::isSafeZoneOpen() const {
 	return safeZone.isOpen();
 }
 
+bool Map::isOutOfBounds(int i, int j) {
+	return (i < 0 || j < 0 || i >= Constants::Map::Matrix::size || j >= Constants::Map::Matrix::size);	
+}
+
+bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
+
+	if (isOutOfBounds(coordinates.i, coordinates.j))
+		return false;
+
+	char tileValue{ matrix[coordinates.i][coordinates.j] };
+	return tileValue == '0' || tileValue == '3';
+}
+
 void Map::handleInteractions() {
 	if (player.isMoving()) {
 		player.keepMoving();
@@ -40,7 +53,10 @@ void Map::handleInteractions() {
 		}
 
 	} else {
-		player.startMove();
+		const auto target{ player.getTargetedCoordinates() };
+		
+		if (target && isLegalMove(target.value()))
+			player.startMove();
 	}
 }
 
