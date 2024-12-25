@@ -1,21 +1,21 @@
 #include "safe-zone.h"
 #include "../map/utilities.h"
+#include "../../constants/constants.h"
 #include <algorithm>
+#include <utility>
 
-void SafeZone::addKey(const Coordinates<int>& coordinates) {
-    keys.push_back(coordinates);
-}
-
-void SafeZone::setDoor(const Coordinates<int>& coordinates) {
-    doorCoordinates = coordinates;
-}
+SafeZone::SafeZone(const Coordinates<int>& coordinates, const std::vector<Coordinates<int>>& keyList) 
+    : doorCoordinates{coordinates} {
+        for (int i{0}; i < Constants::SafeZone::totalKeys; ++i)
+            keys.push_back(std::move(keyList[i]));
+    }
 
 void SafeZone::pickKeyUp(const Coordinates<int>& coordinates) {
     keys.remove(coordinates);
 }
 
 int SafeZone::getPickedUpKeys() const {
-    return 3 - keys.size();
+    return Constants::SafeZone::totalKeys - keys.size();
 }
 
 bool SafeZone::isKey(const Coordinates<int>& coordinates) {
@@ -27,7 +27,7 @@ bool SafeZone::isKey(const Coordinates<int>& coordinates) {
 }
 
 bool SafeZone::isOpen() const {
-    return keys.empty();
+    return !keys.empty();
 }
 
 const Coordinates<int>& SafeZone::getDoor() const {

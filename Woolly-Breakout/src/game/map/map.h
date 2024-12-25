@@ -4,11 +4,11 @@
 #include "utilities.h"
 #include "../../constants/constants.h"
 #include <array>
+#include <optional>
 
 class Map {
 
 	public:
-
 
 		Map();
 
@@ -39,6 +39,6 @@ class Map {
 		};
 
 		Player player{ Coordinates<int>{ 1, 1 } };
-		SafeZone safeZone{};
-	
+		std::optional<SafeZone> safeZone{ std::nullopt };
+
 };

@@ -1,13 +1,15 @@
 #pragma once
 #include "../map/utilities.h"
+#include "../../constants/constants.h"
 #include <list>
+#include <vector>
 
 class SafeZone {
     public:
 
-        void addKey(const Coordinates<int>& coordinates);
+        SafeZone(const Coordinates<int>& coordinates, const std::vector<Coordinates<int>>& keyList);
+        
         void pickKeyUp(const Coordinates<int>& coordinates);
-        void setDoor(const Coordinates<int>& coordinates);
         bool isKey(const Coordinates<int>& coordinates);
         bool isOpen() const;
         int getPickedUpKeys() const;

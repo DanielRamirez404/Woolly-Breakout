@@ -81,7 +81,7 @@ void GameWindow::addStatusToRenderer(const Map& map) {
 
 	int pickedKeys{ map.getPickedUpKeys() };
 
-	for (int i{0}; i < 3; ++i) {
+	for (int i{0}; i < Constants::SafeZone::totalKeys; ++i) {
 
 		renderer.setArea(Constants::StatusBar::Frame::padding + Constants::StatusBar::Frame::size * i, Constants::StatusBar::Frame::padding, Constants::StatusBar::Frame::size);
 		renderer.addTexture("frame");
@@ -126,7 +126,7 @@ void GameWindow::addMapToRenderer(const Map& map) {
 
 			renderer.setArea((j_count - j_off_constant) * Constants::Map::TileRendering::size, (i_count - i_off_constant) * Constants::Map::TileRendering::size, Constants::Map::TileRendering::size);
 
-			switch (tile) {
+				switch (tile) {
 				case '0':
 					renderer.addTexture("grass");
 					break;
@@ -135,8 +135,7 @@ void GameWindow::addMapToRenderer(const Map& map) {
 					break;
 				case '2':
 					renderer.addTexture("grass");
-					if (!map.isSafeZoneOpen())
-						renderer.addTexture("door");
+					renderer.addTexture("door");
 					break;
 				case '3':
 					renderer.addTexture("grass");

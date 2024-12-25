@@ -34,4 +34,8 @@ namespace Constants {
         inline constexpr int fps{ 24 };
         inline constexpr int perMove{ fps / 4 };
     }
+
+    namespace SafeZone {
+        inline constexpr int totalKeys{ 3 };
+    }     
 }
