@@ -1,6 +1,7 @@
 #include "gameWindow.h"
 #include "elements.h"
 #include "../../constants/constants.h"
+#include "../../constants/notation.h"
 #include "../map/utilities.h"
 #include "../entities/safe-zone.h"
 #include "SDL.h"
@@ -8,6 +9,7 @@
 #include <stdexcept>
 #include <functional>
 #include <string_view>
+#include <ranges>
 
 GameWindow::GameWindow() {
 	initializeLibraries();
@@ -59,10 +61,14 @@ void GameWindow::allocateUIResources() {
 
     renderer.setTransparentMode();
 
-	constexpr std::string_view names[] { "grass", "wall", "player", "key", "door", "frame" };
+	constexpr std::string_view extraNames[] { "player", "frame" };
 
-	for (std::string_view name : names)
+	for (std::string_view name : extraNames)
 		renderer.loadTexture(name.data());
+
+	for (auto const& [name, character] : Notation::characters) {
+		renderer.loadTexture(name.data());
+	}
 }
 
 void GameWindow::renderMap(const Map& map) {
@@ -122,28 +128,24 @@ void GameWindow::addMapToRenderer(const Map& map) {
 			if (i < 0 || j < 0 || i >= Constants::Map::Matrix::size || j >= Constants::Map::Matrix::size)
 				continue;
 
-			char tile { map(i, j) };			
-
 			renderer.setArea((j_count - j_off_constant) * Constants::Map::TileRendering::size, (i_count - i_off_constant) * Constants::Map::TileRendering::size, Constants::Map::TileRendering::size);
-
-				switch (tile) {
-				case '0':
-					renderer.addTexture("grass");
-					break;
-				case '1':
-					renderer.addTexture("wall");
-					break;
-				case '2':
-					renderer.addTexture("grass");
-					renderer.addTexture("door");
-					break;
-				case '3':
-					renderer.addTexture("grass");
-					renderer.addTexture("key");
-				default:
-					break;
-			} 				
+			addTileToRenderer(map(i, j));
 		}
+}
+
+void GameWindow::addTileToRenderer(char tile) {
+	if (tile == Notation::characters["wall"]) {
+		renderer.addTexture("wall");
+		return;
+	}
+
+	renderer.addTexture("grass");
+
+	if (tile == Notation::characters["grass"])
+		return;
+
+	const auto& name{ (tile == Notation::characters["door"]) ? "door" : "key" };
+	renderer.addTexture(name);
 }
 
 void GameWindow::addPlayerToRenderer(const Map& map) {

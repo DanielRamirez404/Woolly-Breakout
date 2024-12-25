@@ -21,6 +21,7 @@ class GameWindow {
 		void renderMap(const Map& map);
 		void addStatusToRenderer(const Map& map);
 		void addMapToRenderer(const Map& map);
+		void addTileToRenderer(char tile);
 		void addPlayerToRenderer(const Map& map);
 
 };

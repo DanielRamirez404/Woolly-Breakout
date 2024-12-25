@@ -1,5 +1,6 @@
 #include "map.h"
 #include "../../constants/constants.h"
+#include "../../constants/notation.h"
 #include "utilities.h"
 #include "../entities/safe-zone.h"
 #include <vector>
@@ -13,19 +14,15 @@ Map::Map() {
 	Coordinates<int> door{};
 
 	for (int i{0}; i < Constants::Map::Matrix::size || (safeZone && keys.size() == Constants::SafeZone::totalKeys); ++i)
-		for (int j{0}; j < Constants::Map::Matrix::size; ++j)
-			switch (matrix[i][j]) {
-				case '3':
-					keys.push_back({i, j});
-					break;
+		for (int j{0}; j < Constants::Map::Matrix::size; ++j) {
 
-				case '2':
-					door = {i, j};
-					break;
+			char tile{ matrix[i][j] };
 
-				default:
-					break;
-			}
+			if (tile == Notation::characters["key"])
+				keys.push_back({i, j});
+			else if (tile == Notation::characters["door"])
+				door = {i, j};		
+		}
 
 	safeZone = {std::move(door), keys};
 };
@@ -48,7 +45,7 @@ bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
 		return false;
 
 	char tileValue{ matrix[coordinates.i][coordinates.j] };
-	return tileValue == '0' || tileValue == '3';
+	return tileValue == Notation::characters["grass"] || tileValue == Notation::characters["key"];
 }
 
 void Map::handleInteractions() {
@@ -62,11 +59,11 @@ void Map::handleInteractions() {
 
 		if (safeZone.value().isKey(playerCoordinates)) {
 			safeZone.value().pickKeyUp(playerCoordinates);
-			matrix[playerCoordinates.i][playerCoordinates.j] = '0';
+			matrix[playerCoordinates.i][playerCoordinates.j] = Notation::characters["grass"];
 
 			if (!safeZone.value().isOpen()) {
 				const auto& doorCoordinates = safeZone.value().getDoor();
-				matrix[doorCoordinates.i][doorCoordinates.j] = '0';
+				matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
 				safeZone.reset();
 			}
 		}
