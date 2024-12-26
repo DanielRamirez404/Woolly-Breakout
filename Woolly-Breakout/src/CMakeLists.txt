@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 
 project(WoollyBreakout)
 
-message(STATUS "Starting to build project with CMake...")
+message(STATUS "Building project with CMake...")
 
 if (UNIX)
 
@@ -21,15 +21,19 @@ elseif(WIN32)
 	message(STATUS "Windows operating system detected")
 	message(STATUS "Adding default Windows SDL2 directory for include files")
 	include_directories("C:\\SDL2\\include")
+	include_directories("C:\\SDL2_Image\\include")
 
 	if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
 		message(STATUS "64-bit architecture detected")
-		message(STATUS "Setting SDL2 library directory as the 64-bit default directory")
+		message(STATUS "Setting SDL2 and SDL2_Image library directories as the 64-bit default directories")
 		set(SDL2_LIBRARIES "C:\\SDL2\\lib\\x64\\SDL2.lib;C:\\SDL2\\lib\\x64\\SDL2main.lib")
+		set(SDL2_IMAGE_LIBRARIES "C:\\SDL2_Image\\lib\\x64\\SDL2_image.lib")
+
 	else()
 		message(STATUS "32-bit architecture detected")
-		message(STATUS "Setting SDL2 library directory as the 32-bit default directory")
+		message(STATUS "Setting SDL2 and SDL2_Image library directories as the 32-bit default directories")
 		set(SDL2_LIBRARIES "C:\\SDL2\\lib\\x86\\SDL2.lib;C:\\SDL2\\lib\\x86\\SDL2main.lib")	
+		set(SDL2_IMAGE_LIBRARIES "C:\\SDL2_Image\\lib\\x86\\SDL2_image.lib")	
 	endif()
 
 endif()
