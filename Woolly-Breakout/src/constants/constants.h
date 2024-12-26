@@ -3,7 +3,7 @@
 namespace Constants {
     
     namespace Window {
-        inline constexpr int size{ 500 };
+        inline constexpr int size{ 750 };
     }
 
     namespace StatusBar {
@@ -19,11 +19,11 @@ namespace Constants {
         inline constexpr int length{ Window::size - StatusBar::length };
         
         namespace Matrix {
-            inline constexpr int size{ 5 };
+            inline constexpr int size{ 15 };
         }
 
         namespace TileRendering {
-            inline constexpr int perRow{ 5 }; // must be odd
+            inline constexpr int perRow{ 7 }; // must be odd
             inline constexpr int center{ (perRow + 1) / 2 };
             inline constexpr int size{ Window::size / perRow };
             inline constexpr int players{ Window::size - center * size };
@@ -36,6 +36,6 @@ namespace Constants {
     }
 
     namespace SafeZone {
-        inline constexpr int totalKeys{ 3 };
+        inline constexpr int totalKeys{ 5 };
     }     
 }
