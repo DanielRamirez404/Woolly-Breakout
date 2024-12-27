@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(Test)
+project(Server)
+project(Client)
 
 include(FetchContent)
 
@@ -14,8 +15,13 @@ set(ASIO_CMAKE_ASIO_TAG asio-1-12-2)
 FetchContent_MakeAvailable(asio-cmake)
 # ...
 
-add_executable(Test main.cpp)
+add_executable(Server server.cpp)
+add_executable(Client client.cpp)
 
-target_link_libraries(Test
+target_link_libraries(Server
+  PRIVATE asio
+)
+
+target_link_libraries(Client
   PRIVATE asio
 )
