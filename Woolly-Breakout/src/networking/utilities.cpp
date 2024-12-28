@@ -11,3 +11,10 @@ void tryNetworkingFunction(const std::function<void()>& function) {
         throw std::runtime_error{"Failed networking function. System error [" + std::to_string(error.value()) + "]: " + error.message() };
     }
 }
+
+std::ostream& operator<<(std::ostream &out, const asio::ip::tcp::socket& socket) {
+    out << socket.remote_endpoint().address().to_string() << ':'
+        << socket.remote_endpoint().port();
+
+    return out;
+}
