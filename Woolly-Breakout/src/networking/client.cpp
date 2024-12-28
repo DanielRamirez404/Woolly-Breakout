@@ -1,17 +1,12 @@
+#include "utilities.h"
+#include "include-asio.h"
 #include <iostream>
 #include <system_error>
 #include <array>
 
-#ifndef ASIO_STANDALONE
-    #define ASIO_STANDALONE
-#endif
-
-#include <asio.hpp>
-
 int main(int argc, char *argv[]) {
     
-    
-    try {
+    tryNetworkingFunction([]() {
 
         asio::io_context context{};
         asio::ip::tcp::resolver resolver{context};
@@ -39,12 +34,7 @@ int main(int argc, char *argv[]) {
             
             std::cout.write(buffer.data(), length); 
         }
-
-    } catch (const std::error_code& error) {
-        std::cerr << error.value() << '\n';
-    }
-
-
+    });
 
     return 0;
 }
