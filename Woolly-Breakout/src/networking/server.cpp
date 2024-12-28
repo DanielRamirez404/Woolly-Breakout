@@ -14,11 +14,11 @@ void GameServer::run() {
     acceptClient(client);
 
     //this won't stay on the final version
-    std::error_code error{};
-    asio::write(client, asio::buffer("hello, client!\n"), error);
+    writeToSocket(client, "hello, client!\n");    
 
     while (true) {
         handleClient(client);
+        readFromSocket(client);
     }
 }
 

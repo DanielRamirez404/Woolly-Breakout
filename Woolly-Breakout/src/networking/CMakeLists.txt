@@ -16,7 +16,7 @@ FetchContent_MakeAvailable(asio-cmake)
 # ...
 
 add_executable(Server include-asio.h utilities.h utilities.cpp server.h server.cpp)
-add_executable(Client include-asio.h utilities.h utilities.cpp client.cpp)
+add_executable(Client include-asio.h utilities.h utilities.cpp client.h client.cpp)
 
 target_link_libraries(Server
   PRIVATE asio
