@@ -5,6 +5,7 @@
 #include <system_error>
 #include <string>
 #include <array>
+#include <optional>
 
 void tryNetworkingFunction(const std::function<void()>& function) {
     try{
@@ -14,7 +15,7 @@ void tryNetworkingFunction(const std::function<void()>& function) {
     }
 }
 
-void readFromSocket(asio::ip::tcp::socket& socket) {
+std::optional<std::string> readFromSocket(asio::ip::tcp::socket& socket) {
     std::array<char, 128> buffer{};
 
     std::error_code error{};
@@ -22,12 +23,12 @@ void readFromSocket(asio::ip::tcp::socket& socket) {
     size_t length{ socket.read_some(asio::buffer(buffer), error) };
 
     if (error == asio::error::eof)
-        return;
+        return std::nullopt;
 
     if (error) 
         throw error;
-            
-    std::cout.write(buffer.data(), length); 
+        
+    return std::string{ buffer.begin(), buffer.end() };
 }
 
 void writeToSocket(asio::ip::tcp::socket& socket, std::string_view message) {

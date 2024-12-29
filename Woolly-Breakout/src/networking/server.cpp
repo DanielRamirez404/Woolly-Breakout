@@ -18,7 +18,6 @@ void GameServer::run() {
 
     while (true) {
         handleClient(client);
-        readFromSocket(client);
     }
 }
 
@@ -28,7 +27,11 @@ void GameServer::acceptClient(asio::ip::tcp::socket& socket) {
 }
 
 void GameServer::handleClient(asio::ip::tcp::socket& socket) {
-    //todo
+    auto message{ readFromSocket(socket) };
+
+    if (message) {
+        std::cout << message.value();
+    }
 }
 
 int main(int argc, char *argv[]) {

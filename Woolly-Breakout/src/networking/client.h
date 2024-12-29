@@ -1,12 +1,13 @@
 #pragma once
 #include "include-asio.h"
 #include <string_view>
+#include <optional>
 
 class GameClient {
     public:
 
         void connectTo(std::string_view serverAddress, int serverPort);
-        void handleConnection();
+        void handleConnection(const std::function<void(std::string_view)>& handleMessage, const std::function<std::optional<std::string>()>& getInput);
 
     private:
 
