@@ -5,33 +5,32 @@
 #include <iostream>
 #include <string>
 
-GameServer::GameServer(int port) : acceptor{context, asio::ip::tcp::endpoint{{}, 6000}} {
+GameServer::GameServer(int port) : acceptor { context, asio::ip::tcp::endpoint{{}, 6000} } {
     std::cout << "Initialized Server on port: " + std::to_string(port) << '\n';
 }
 
 void GameServer::run() {
     std::cout << "Running server\n";
+
     acceptClient(client);
 
     //this won't stay on the final version
-    writeToSocket(client, "hello, client!\n");    
+    client.send("hello, client!\n");
+    handleClient(client);
 
     while (true) {
-        handleClient(client);
+        //handleClient(client);
     }
 }
 
-void GameServer::acceptClient(asio::ip::tcp::socket& socket) {
-    acceptor.accept(socket);
+void GameServer::acceptClient(Socket& socket) {
+    acceptor.accept(socket.get());
     std::cout << "Established connection from client: " << socket << '\n';
 }
 
-void GameServer::handleClient(asio::ip::tcp::socket& socket) {
-    auto message{ readFromSocket(socket) };
-
-    if (message) {
-        std::cout << message.value();
-    }
+void GameServer::handleClient(Socket& socket) {
+    std::string string { socket.read() };
+    std::cout << string;
 }
 
 int main(int argc, char *argv[]) {

@@ -14,31 +14,3 @@ void tryNetworkingFunction(const std::function<void()>& function) {
         throw std::runtime_error{"Failed networking function. System error [" + std::to_string(error.value()) + "]: " + error.message() };
     }
 }
-
-std::optional<std::string> readFromSocket(asio::ip::tcp::socket& socket) {
-    std::array<char, 128> buffer{};
-
-    std::error_code error{};
-            
-    size_t length{ socket.read_some(asio::buffer(buffer), error) };
-
-    if (error == asio::error::eof)
-        return std::nullopt;
-
-    if (error) 
-        throw error;
-        
-    return std::string{ buffer.begin(), buffer.end() };
-}
-
-void writeToSocket(asio::ip::tcp::socket& socket, std::string_view message) {
-    std::error_code error{};
-    asio::write(socket, asio::buffer(message), error);
-}
-
-std::ostream& operator<<(std::ostream &out, const asio::ip::tcp::socket& socket) {
-    out << socket.remote_endpoint().address().to_string() << ':'
-        << socket.remote_endpoint().port();
-
-    return out;
-}

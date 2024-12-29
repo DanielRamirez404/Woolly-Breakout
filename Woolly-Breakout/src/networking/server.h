@@ -1,5 +1,6 @@
 #pragma once
 #include "include-asio.h"
+#include "socket.h"
 
 class GameServer {
     public:
@@ -11,8 +12,8 @@ class GameServer {
 
         asio::io_context context{};
         asio::ip::tcp::acceptor acceptor;
-        asio::ip::tcp::socket client{ context };
+        Socket client{context};
 
-        void acceptClient(asio::ip::tcp::socket& socket);
-        void handleClient(asio::ip::tcp::socket& socket);
+        void acceptClient(Socket& socket);
+        void handleClient(Socket& socket);
 };

@@ -11,19 +11,15 @@
 
 void GameClient::connectTo(std::string_view serverAddress, int serverPort) {
     auto endpoint{ resolver.resolve(serverAddress.data(), std::to_string(serverPort)) };
-    asio::connect(server, endpoint);
+    asio::connect(server.get(), endpoint);
     std::cout << "Connected to server: " << server << '\n';
 }
 
 void GameClient::handleConnection(const std::function<void(std::string_view)>& handleMessage, const std::function<std::optional<std::string>()>& getInput) {   
     
     std::thread messageHandler { [&]() {
-        while (true) {
-            auto message{ readFromSocket(server) };
-            
-            if (message)
-                handleMessage(message.value());
-        }     
+        while (true)
+            handleMessage(server.read());     
     }};
 
     std::thread inputHandler{ [&]() {
@@ -31,7 +27,7 @@ void GameClient::handleConnection(const std::function<void(std::string_view)>& h
             auto input{ getInput() };
 
             if (input) 
-                writeToSocket(server, input.value());
+                server.send(input.value());
         }
     }};
 
@@ -46,7 +42,8 @@ int main(int argc, char *argv[]) {
         client.connectTo("127.0.0.1", 6000);
         client.handleConnection(
             [](std::string_view message) {
-                std::cout << message;
+                std::string string{ message };
+                std::cout << string;
             },
 
             []() {
