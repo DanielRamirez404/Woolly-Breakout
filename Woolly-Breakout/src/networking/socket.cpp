@@ -3,18 +3,18 @@
 #include <string>
 #include <optional>
 #include <iostream>
+#include <algorithm>
+#include <utility>
 
 Socket::Socket(asio::io_context& context) : socket{ context } {}
 
 std::string Socket::read(char terminatingCharacter) {
-
     std::string message{ readOnce(terminatingCharacter) };
 
-    while (message.empty() || message.back() != terminatingCharacter) {
-        //message.append( readOnce(terminatingCharacter) );
-    }
+    while (message.empty() || message.back() != terminatingCharacter)
+        message.append( readOnce(terminatingCharacter) );
 
-    return message;
+    return message.substr(0, message.size() - 1);
 }
 
 void Socket::send(std::string message, char terminatingCharacter) {
@@ -23,12 +23,14 @@ void Socket::send(std::string message, char terminatingCharacter) {
     asio::write(socket, asio::buffer(message), error);
 }
 
-std::string Socket::readOnce(char terminatingCharacter) {
-    std::array<char, 128> buffer{};
+std::string Socket::readOnce(char terminatingCharacter) {        
+    if (!isBufferEmpty)
+        return getMessageFromBuffer(terminatingCharacter);
 
     std::error_code error{};
-            
-    size_t length{ socket.read_some(asio::buffer(buffer), error) };
+    std::array<char, 128> readingArray{};
+
+    socket.read_some(asio::buffer(readingArray), error);
 
     if (error == asio::error::eof)
         return "";
@@ -36,10 +38,28 @@ std::string Socket::readOnce(char terminatingCharacter) {
     if (error) 
         throw error;
 
-    std::string string{ buffer.begin(), buffer.end() };
-    std::size_t charIndex{ string.find_first_of(terminatingCharacter) };
+    buffer = { readingArray.begin(), readingArray.end() };
+    return getMessageFromBuffer(terminatingCharacter);
+}
 
-    return (charIndex != std::string::npos) ? string.substr(0, charIndex + 1) : string;  
+std::string Socket::getMessageFromBuffer(char terminatingCharacter) {
+    std::cout.flush();  //it won't work otherwise
+
+    std::size_t charIndex{ buffer.find_first_of(terminatingCharacter) };
+
+    isBufferEmpty = true;
+    std::string temp{ std::move(buffer) };
+    buffer = "";
+
+    if (charIndex == std::string::npos)
+        return temp;
+
+    if (charIndex != buffer.size() - 1) {
+        isBufferEmpty = false;
+        buffer = temp.substr(charIndex + 1, buffer.size() - charIndex + 1);
+    }
+
+    return temp.substr(0, charIndex + 1); 
 }
 
 asio::ip::tcp::socket& Socket::get() {

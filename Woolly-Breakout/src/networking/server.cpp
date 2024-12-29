@@ -16,10 +16,9 @@ void GameServer::run() {
 
     //this won't stay on the final version
     client.send("hello, client!\n");
-    handleClient(client);
 
     while (true) {
-        //handleClient(client);
+        handleClient(client);
     }
 }
 

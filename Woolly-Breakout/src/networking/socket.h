@@ -16,7 +16,9 @@ class Socket{
 
     private:
         asio::ip::tcp::socket socket;
+        std::string buffer{};
+        bool isBufferEmpty{ true };
 
         std::string readOnce(char terminatingCharacter);
-
+        std::string getMessageFromBuffer(char terminatingCharacter);
 };
