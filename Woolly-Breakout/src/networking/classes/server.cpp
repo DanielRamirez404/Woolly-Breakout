@@ -28,39 +28,3 @@ void GameServer::acceptClient(Socket& socket) {
     acceptor.accept(socket.get());
     std::cout << "Established connection from client: " << socket << '\n';
 }
-
-int main(int argc, char *argv[]) {
-
-    tryNetworkingFunction([]() {
-
-        GameServer server{6000};
-        server.getAcceptingThread().join();
-
-        auto threads{
-            server.getMessageThreads(
-                [](std::string message) {
-                    std::cout << message;
-                },
-
-                []() {
-                    static int count{0};
-                    ++count;
-
-                    if (count <= 3)
-                        return std::optional<std::string>{"hello, client!\n"};
-                    
-                    return std::optional<std::string>{std::nullopt};
-                },
-
-                []() {
-                    return true;
-                }
-            )
-        };
-
-        threads.first.join();
-        threads.second.join();
-    });
-
-    return 0;
-}

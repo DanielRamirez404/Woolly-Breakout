@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.14)
 
 project(WoollyBreakout)
 
@@ -34,6 +34,17 @@ elseif(WIN32)
 
 endif()
 
+include(FetchContent)
+
+message(STATUS "Fetching Asio standalone library")
+FetchContent_Declare(asio-cmake
+  GIT_REPOSITORY https://github.com/kingsamchen/asio-cmake.git
+  GIT_TAG        origin/master
+)
+
+set(ASIO_CMAKE_ASIO_TAG asio-1-12-2)
+FetchContent_MakeAvailable(asio-cmake)
+
 message(STATUS "Creating executable from the project\'s source code")
 
 file(GLOB src
@@ -43,9 +54,11 @@ file(GLOB src
 	"game/ui/*"
 	"game/map/*"
 	"game/entities/*"
+	"networking/*"
+	"networking/classes/*"
 )
 
 add_executable(WoollyBreakout ${src})
 
-message(STATUS "Linking SDL2 and SDL2_Image libraries")
-target_link_libraries(WoollyBreakout ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+message(STATUS "Linking SDL2, SDL2_Image and Asio libraries")
+target_link_libraries(WoollyBreakout ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} asio)

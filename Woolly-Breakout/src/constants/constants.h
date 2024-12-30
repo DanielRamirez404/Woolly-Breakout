@@ -37,5 +37,9 @@ namespace Constants {
 
     namespace SafeZone {
         inline constexpr int totalKeys{ 5 };
+    }
+
+    namespace Networking {
+        inline constexpr int defaultPort{ 6000 };
     }     
 }
