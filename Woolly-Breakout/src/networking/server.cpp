@@ -4,22 +4,24 @@
 #include <system_error>
 #include <iostream>
 #include <string>
+#include <thread>
+#include <optional>
 
 GameServer::GameServer(int port) : acceptor { context, asio::ip::tcp::endpoint{{}, 6000} } {
     std::cout << "Initialized Server on port: " + std::to_string(port) << '\n';
 }
 
-void GameServer::run() {
+std::thread GameServer::getAcceptingThread() {
     std::cout << "Running server\n";
 
-    acceptClient(client);
+    return std::thread{[&]() {
+        acceptClient(client);
+        client.send("hello, client!\n");
+    }};
+}
 
-    //this won't stay on the final version
-    client.send("hello, client!\n");
-
-    while (true) {
-        handleClient(client);
-    }
+MessageHandler GameServer::getMessageThreads(const InputHandler& handleMessage, const OutputGetter& getOutput, const LoopEnder& getLoopCondition) {
+    return getMessageHandler(client, handleMessage, getOutput, getLoopCondition);
 }
 
 void GameServer::acceptClient(Socket& socket) {
@@ -27,16 +29,37 @@ void GameServer::acceptClient(Socket& socket) {
     std::cout << "Established connection from client: " << socket << '\n';
 }
 
-void GameServer::handleClient(Socket& socket) {
-    std::string string { socket.read() };
-    std::cout << string;
-}
-
 int main(int argc, char *argv[]) {
 
     tryNetworkingFunction([]() {
+
         GameServer server{6000};
-        server.run();
+        server.getAcceptingThread().join();
+
+        auto threads{
+            server.getMessageThreads(
+                [](std::string message) {
+                    std::cout << message;
+                },
+
+                []() {
+                    static int count{0};
+                    ++count;
+
+                    if (count <= 3)
+                        return std::optional<std::string>{"hello, client!\n"};
+                    
+                    return std::optional<std::string>{std::nullopt};
+                },
+
+                []() {
+                    return true;
+                }
+            )
+        };
+
+        threads.first.join();
+        threads.second.join();
     });
 
     return 0;

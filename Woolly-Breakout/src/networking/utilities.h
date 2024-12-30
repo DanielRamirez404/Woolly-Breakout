@@ -1,12 +1,15 @@
 #pragma once
-#include "include-asio.h"
+#include "socket.h"
 #include <functional>
-#include <iostream>
-#include <string_view>
-#include <string>
 #include <optional>
+#include <string>
+#include <utility>
+#include <thread>
+
+using MessageHandler = std::pair<std::thread, std::thread>;
+using InputHandler = std::function<void(std::string)>;
+using OutputGetter = std::function<std::optional<std::string>()>;
+using LoopEnder = std::function<bool()>;
 
 void tryNetworkingFunction(const std::function<void()>& function);
-std::optional<std::string> readFromSocket(asio::ip::tcp::socket& socket);
-void writeToSocket(asio::ip::tcp::socket& socket, std::string_view message);
-std::ostream& operator<<(std::ostream &out, const asio::ip::tcp::socket& socket);
+MessageHandler getMessageHandler(Socket& socket, const InputHandler& handleMessage, const OutputGetter& getOutput, const LoopEnder& getLoopCondition);

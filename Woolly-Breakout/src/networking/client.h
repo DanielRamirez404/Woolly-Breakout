@@ -1,14 +1,17 @@
 #pragma once
 #include "include-asio.h"
+#include "utilities.h"
 #include "socket.h"
 #include <string_view>
 #include <optional>
+#include <utility>
+#include <thread>
 
 class GameClient {
     public:
 
         void connectTo(std::string_view serverAddress, int serverPort);
-        void handleConnection(const std::function<void(std::string_view)>& handleMessage, const std::function<std::optional<std::string>()>& getInput);
+        MessageHandler getMessageThreads(const InputHandler& handleMessage, const OutputGetter& getOutput, const LoopEnder& getLoopCondition);
 
     private:
 

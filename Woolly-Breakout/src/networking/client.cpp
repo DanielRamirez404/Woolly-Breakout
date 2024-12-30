@@ -8,6 +8,7 @@
 #include <string_view>
 #include <optional>
 #include <thread>
+#include <utility>
 
 void GameClient::connectTo(std::string_view serverAddress, int serverPort) {
     auto endpoint{ resolver.resolve(serverAddress.data(), std::to_string(serverPort)) };
@@ -15,24 +16,8 @@ void GameClient::connectTo(std::string_view serverAddress, int serverPort) {
     std::cout << "Connected to server: " << server << '\n';
 }
 
-void GameClient::handleConnection(const std::function<void(std::string_view)>& handleMessage, const std::function<std::optional<std::string>()>& getInput) {   
-    
-    std::thread messageHandler { [&]() {
-        while (true)
-            handleMessage(server.read());     
-    }};
-
-    std::thread inputHandler{ [&]() {
-        while (true) {
-            auto input{ getInput() };
-
-            if (input) 
-                server.send(input.value());
-        }
-    }};
-
-    messageHandler.join();
-    inputHandler.join();
+MessageHandler GameClient::getMessageThreads(const InputHandler& handleMessage, const OutputGetter& getOutput, const LoopEnder& getLoopCondition) {
+    return getMessageHandler(server, handleMessage, getOutput, getLoopCondition);
 }
 
 int main(int argc, char *argv[]) {
@@ -40,22 +25,30 @@ int main(int argc, char *argv[]) {
     tryNetworkingFunction([]() {
         GameClient client{};
         client.connectTo("127.0.0.1", 6000);
-        client.handleConnection(
-            [](std::string_view message) {
-                std::string string{ message };
-                std::cout << string;
-            },
+        auto threads { 
+            client.getMessageThreads(
+                [](std::string message) {
+                    std::cout << message;
+                },
 
-            []() {
-                static int count{0};
-                ++count;
+                []() {
+                    static int count{0};
+                    ++count;
 
-                if (count <= 3)
-                    return std::optional<std::string>{"hello, server!\n"};
-                
-                return std::optional<std::string>{std::nullopt};
-            }
-        );    
+                    if (count <= 3)
+                        return std::optional<std::string>{"hello, server!\n"};
+                    
+                    return std::optional<std::string>{std::nullopt};
+                },
+
+                []() {
+                    return true;
+                }
+            )    
+        };
+
+        threads.first.join();
+        threads.second.join();
     });
 
     return 0;

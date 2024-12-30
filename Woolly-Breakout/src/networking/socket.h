@@ -1,3 +1,4 @@
+#pragma once
 #include "include-asio.h"
 #include <string>
 #include <optional>
