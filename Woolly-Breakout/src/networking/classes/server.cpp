@@ -16,7 +16,6 @@ std::thread GameServer::getAcceptingThread() {
 
     return std::thread{[&]() {
         acceptClient(client);
-        client.send("hello, client!\n");
     }};
 }
 

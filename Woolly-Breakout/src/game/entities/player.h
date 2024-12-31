@@ -9,6 +9,8 @@ class Player {
 
         Player(const Coordinates<int>& mapCoordinates);
         
+        void setCoordinates(const Coordinates<float>& newCoordinates);
+
         void queueMove(Direction direction);
         std::optional<Coordinates<int>> getTargetedCoordinates();
 

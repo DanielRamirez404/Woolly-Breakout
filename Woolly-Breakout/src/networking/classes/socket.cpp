@@ -1,5 +1,6 @@
 #include "socket.h"
 #include "../include-asio.h"
+#include "../../constants/constants.h"
 #include <string>
 #include <optional>
 #include <iostream>
@@ -28,7 +29,7 @@ std::string Socket::readOnce(char terminatingCharacter) {
         return getMessageFromBuffer(terminatingCharacter);
 
     std::error_code error{};
-    std::array<char, 128> readingArray{};
+    std::array<char, Constants::Networking::bufferSize> readingArray{};
 
     socket.read_some(asio::buffer(readingArray), error);
 

@@ -9,8 +9,8 @@ class Socket{
         
         Socket(asio::io_context& context);
         
-        std::string read(char terminatingCharacter = '.');
-        void send(std::string message, char terminatingCharacter = '.');
+        std::string read(char terminatingCharacter = ':');
+        void send(std::string message, char terminatingCharacter = ':');
         asio::ip::tcp::socket& get();
 
         friend std::ostream& operator<<(std::ostream &out, const Socket& socket);

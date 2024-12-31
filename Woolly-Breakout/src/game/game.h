@@ -23,7 +23,6 @@ class Game {
 		Host hostType{};
 		std::optional<std::string> server_IPv4;
 
-		GameWindow window{};
 		Map map{};
 
 		void startSoloGame();

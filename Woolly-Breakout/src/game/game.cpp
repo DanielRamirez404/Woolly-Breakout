@@ -10,6 +10,7 @@
 #include <functional>
 #include <optional>
 #include <thread>
+#include <utility>
 
 Game::Game(std::string prompt) :
 	hostType { (prompt == "") ? Host::None : ((prompt == "host") ? Host::Server : Host::Client) },
@@ -32,7 +33,8 @@ void Game::run() {
 }
 
 void Game::startSoloGame() {
-	window.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map);
+	GameWindow gameWindow{};
+	gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map);
 }
 
 void Game::hostGame() {
@@ -47,21 +49,18 @@ void Game::hostGame() {
                     std::cout << message;
                 },
 
-                []() {
-                    static int count{0};
-                    ++count;
-
-                    if (count <= 3)
-                        return std::optional<std::string>{"hello, client!\n"};
-                    
-                    return std::optional<std::string>{std::nullopt};
+                [&]() {
+                    return std::optional<std::string>{ map.toString() };
                 },
 
                 []() { return true; }
             )
         };
 
-		window.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map);
+		std::thread{ [&]() {
+			GameWindow gameWindow{};
+			gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map); 
+		}}.join();
 
         threads.first.join();
         threads.second.join();
@@ -74,8 +73,8 @@ void Game::joinGame() {
         client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
         auto threads { 
             client.getMessageThreads(
-                [](std::string message) {
-                    std::cout << message;
+                [&](std::string message) {
+					map.readString(std::move(message));
                 },
 
                 []() {
@@ -92,7 +91,10 @@ void Game::joinGame() {
             )    
         };
 
-		window.startRenderLoop(map);
+		std::thread{ [&]() { 
+			GameWindow gameWindow{};
+			gameWindow.startRenderLoop(map); 
+		} }.join();
 
         threads.first.join();
         threads.second.join();
