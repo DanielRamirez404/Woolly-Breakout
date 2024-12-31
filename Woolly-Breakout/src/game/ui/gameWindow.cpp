@@ -10,6 +10,7 @@
 #include <functional>
 #include <string_view>
 #include <ranges>
+#include <thread>
 
 GameWindow::GameWindow() {
 	initializeLibraries();
@@ -38,6 +39,18 @@ void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogi
 		renderMap(map);
     }
 }
+
+void GameWindow::startRenderLoop(const Map& map) {
+    constexpr int delayTime{ 1000 / Constants::Frames::fps };
+		
+	renderMap(map);
+
+    while (true) {
+		SDL_Delay(delayTime);
+		renderMap(map);
+	}
+}
+
 
 void GameWindow::initializeLibraries() {
 	

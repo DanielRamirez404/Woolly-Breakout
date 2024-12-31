@@ -9,6 +9,7 @@ class GameWindow {
 
 		GameWindow();
         void startGameLoop(const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map);
+		void startRenderLoop(const Map& map);
 
 	private:
 

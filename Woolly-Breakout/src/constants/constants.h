@@ -19,7 +19,7 @@ namespace Constants {
         inline constexpr int length{ Window::size - StatusBar::length };
         
         namespace Matrix {
-            inline constexpr int size{ 15 };
+            inline constexpr int size{ 10 };
         }
 
         namespace TileRendering {
@@ -37,5 +37,10 @@ namespace Constants {
 
     namespace SafeZone {
         inline constexpr int totalKeys{ 5 };
+    }
+
+    namespace Networking {
+        inline constexpr int defaultPort{ 6000 };
+        inline constexpr int bufferSize{ 8 };
     }     
 }
