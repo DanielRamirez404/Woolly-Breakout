@@ -8,3 +8,8 @@ std::unordered_map<std::string_view, char> Notation::characters {
     {"door", '2'},
     {"key", '3'}
 };
+
+std::unordered_map<NetworkEvent, char> networkCharacters {
+    { NetworkEvent::GetMap, 'm' },
+    { NetworkEvent::SetPlayer, 'p' }
+};

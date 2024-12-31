@@ -22,6 +22,8 @@ class Map {
 		void handleInteractions();
 
 		std::string toString();
+		std::string getPlayerString();
+		void readPlayerString(std::string string);
 		void readString(std::string string);
 
 		Player& getPlayer();
@@ -49,5 +51,5 @@ class Map {
 
 		Player player{ Coordinates<int>{ 0, 5 } };
 		std::optional<SafeZone> safeZone{ std::nullopt };
-		
+
 };

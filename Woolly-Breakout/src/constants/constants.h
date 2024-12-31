@@ -41,6 +41,6 @@ namespace Constants {
 
     namespace Networking {
         inline constexpr int defaultPort{ 6000 };
-        inline constexpr int bufferSize{ 128 };
+        inline constexpr int bufferSize{ 8 };
     }     
 }

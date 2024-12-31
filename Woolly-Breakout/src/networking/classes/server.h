@@ -3,6 +3,7 @@
 #include "../include-asio.h"
 #include "socket.h"
 #include <thread>
+#include <string>
 
 class GameServer {
     public:
@@ -10,6 +11,7 @@ class GameServer {
         GameServer(int port);
         std::thread getAcceptingThread();         
         MessageHandler getMessageThreads(const InputHandler& handleMessage, const OutputGetter& getOutput, const LoopEnder& getLoopCondition);
+        void broadcast(std::string message);
 
     private:
 
@@ -18,6 +20,4 @@ class GameServer {
         Socket client{context};
 
         void acceptClient(Socket& socket);
-        void handleClient(Socket& socket);
-        
 };

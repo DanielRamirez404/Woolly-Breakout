@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include <string>
 #include <optional>
+#include <unordered_map>
 
 class Game {
 	public:

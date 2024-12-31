@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <optional>
+#include <utility>
 
 GameServer::GameServer(int port) : acceptor { context, asio::ip::tcp::endpoint{{}, 6000} } {
     std::cout << "Initialized Server on port: " + std::to_string(port) << '\n';
@@ -26,4 +27,8 @@ MessageHandler GameServer::getMessageThreads(const InputHandler& handleMessage, 
 void GameServer::acceptClient(Socket& socket) {
     acceptor.accept(socket.get());
     std::cout << "Established connection from client: " << socket << '\n';
+}
+
+void GameServer::broadcast(std::string message) {
+    client.send(std::move(message));
 }

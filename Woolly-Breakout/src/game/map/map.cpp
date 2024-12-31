@@ -86,16 +86,6 @@ std::string Map::toString() {
 		}
 	}
 
-	string += '/';
-
-	auto playerCoordinates{ player.getCoordinates() };
-
-	string.append( std::to_string(playerCoordinates.i) );
-
-	string += ',';
-
-	string.append( std::to_string(playerCoordinates.j) );
-
 	return string;
 }
 
@@ -104,16 +94,7 @@ void Map::readString(std::string string) {
 	Coordinates<int> door{-1, -1};
 	keys.reserve(Constants::SafeZone::totalKeys);
 
-	int playerIndex{};
-	int commaIndex{ static_cast<int>(string.find(',')) };
-
 	for (int i{0}; i < string.size(); ++i) {
-		
-		if (string[i] == '/') {
-			playerIndex = i + 1;
-			break;
-		}
-
 		int i_index{ i / Constants::Map::Matrix::size };
 		int j_index{ i % Constants::Map::Matrix::size };
 
@@ -127,15 +108,30 @@ void Map::readString(std::string string) {
 			door = {i_index, j_index};
 	}
 
-	float i_player_coordinate{ std::stof( string.substr(playerIndex, commaIndex - playerIndex) ) };
-	float j_player_coordinate{ std::stof( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
-
-	player.setCoordinates({i_player_coordinate, j_player_coordinate});	
-
 	if (door == Coordinates<int>{-1, -1})
 		return;
 
 	safeZone = {std::move(door), keys};
+}
+
+std::string Map::getPlayerString() {
+	std::string string{""};
+	auto playerCoordinates{ player.getCoordinates() };
+
+	string.append( std::to_string(playerCoordinates.i) );
+	string += ',';
+	string.append( std::to_string(playerCoordinates.j) );
+
+	return string;
+}
+
+void Map::readPlayerString(std::string string) {
+	int commaIndex{ static_cast<int>(string.find(',')) };
+
+	float i_player_coordinate{ std::stof( string.substr(0, commaIndex) ) };
+	float j_player_coordinate{ std::stof( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
+
+	player.setCoordinates({i_player_coordinate, j_player_coordinate});
 }
 
 Player& Map::getPlayer() {

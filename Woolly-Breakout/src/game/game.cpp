@@ -2,6 +2,8 @@
 #include "map/map.h"
 #include "entities/player.h"
 #include "map/utilities.h"
+#include "../constants/notation.h"
+#include "../constants/constants.h"
 #include "../networking/classes/server.h"
 #include "../networking/classes/client.h"
 #include "../networking/utilities.h"
@@ -42,6 +44,11 @@ void Game::hostGame() {
 
         GameServer server{Constants::Networking::defaultPort};
         server.getAcceptingThread().join();
+		server.broadcast( 
+			std::string{
+				1, 'm'
+			}.append(map.toString())
+		);
 
         auto threads{
             server.getMessageThreads(
@@ -50,7 +57,17 @@ void Game::hostGame() {
                 },
 
                 [&]() {
-                    return std::optional<std::string>{ map.toString() };
+
+					//somehow this helps to get a low latency, I believe... (I don't think it makes sense, though)
+					std::cout << std::string{
+							1, 'p'
+						}.append(map.getPlayerString()) << '\n'; 
+
+                    return std::optional<std::string>{
+						std::string{
+							1, 'p'
+						}.append(map.getPlayerString()) 
+					};
                 },
 
                 []() { return true; }
@@ -74,7 +91,13 @@ void Game::joinGame() {
         auto threads { 
             client.getMessageThreads(
                 [&](std::string message) {
-					map.readString(std::move(message));
+					char startingFlag{ message[1] };
+					std::string info{ message.substr(2) };
+
+					if (startingFlag == 'm')
+						map.readString(std::move(info));
+					else if (startingFlag == 'p')
+						map.readPlayerString(std::move(info));
                 },
 
                 []() {
