@@ -37,7 +37,11 @@ void Game::run() {
 void Game::startSoloGame() {
 	map.emplace();
 	GameWindow gameWindow{};
-	gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map.value());
+	gameWindow.startGameLoop(
+		map.value(), 
+		std::bind(&Game::handleLocalInput, this, std::placeholders::_1),
+		std::bind(&Game::handleLogic, this)
+	);
 }
 
 void Game::hostGame() {
@@ -56,18 +60,32 @@ void Game::hostGame() {
 
         auto threads{
             server.getMessageThreads(
-                [](std::string message) {
-                    std::cout << message;
+                [&](std::string message) {
+                    if (message == "W")
+						map.value().getSecondPlayer().queueMove(Direction::UP);
+					else if (message == "A")
+						map.value().getSecondPlayer().queueMove(Direction::LEFT);
+					else if (message == "S")
+						map.value().getSecondPlayer().queueMove(Direction::DOWN);
+					else if (message == "D")
+						map.value().getSecondPlayer().queueMove(Direction::RIGHT);
                 },
 
                 [&]() {
+					static bool sendFirstPlayer{ true };
 
+					std::string message{};
 
-					std::string message{ 1, 'p' };
-					message.append(map.value().getPlayerString()).append(":s").append(map.value().getSecondPlayerString());
+					if (sendFirstPlayer)
+						message.append("p").append(map.value().getPlayerString());
+					else
+						message.append("s").append(map.value().getSecondPlayerString());
+
+					sendFirstPlayer ^= true;
+				
 					//somehow this helps to get a low latency, I believe... (I don't think it makes sense, though)
 					std::cout << message << '\n';
-
+					
                     return std::optional<std::string>{ message };
                 },
 
@@ -77,7 +95,11 @@ void Game::hostGame() {
 
 		std::thread{ [&]() {
 			GameWindow gameWindow{true};
-			gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map.value()); 
+			gameWindow.startGameLoop(
+				map.value(), 
+				std::bind(&Game::handleLocalInput, this, std::placeholders::_1),
+				std::bind(&Game::handleLogic, this)
+			); 
 		}}.join();
 
         threads.first.join();
@@ -92,7 +114,8 @@ void Game::joinGame() {
 	tryNetworkingFunction([&]() {
 		GameClient client{};
         client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
-        auto threads { 
+        
+		auto threads { 
             client.getMessageThreads(
                 [&](std::string message) {
 					char startingFlag{ message[1] };
@@ -106,14 +129,10 @@ void Game::joinGame() {
 						map.value().readSecondPlayerString(info);
                 },
 
-                []() {
-                    static int count{0};
-                    ++count;
-
-                    if (count <= 3)
-                        return std::optional<std::string>{"hello, server!\n"};
-                    
-                    return std::optional<std::string>{std::nullopt};
+                [&]() {
+					auto message{ (quequedMessage) ? std::optional<std::string>{std::move(quequedMessage.value())} : std::optional<std::string>{ std::nullopt } };
+					quequedMessage.reset();
+					return message;
                 },
 
                 []() { return true; }
@@ -122,7 +141,10 @@ void Game::joinGame() {
 
 		std::thread{ [&]() { 
 			GameWindow gameWindow{true, false};
-			gameWindow.startRenderLoop(map.value()); 
+			gameWindow.startGameLoop(
+				map.value(),
+				std::bind(&Game::queueHostInput, this, std::placeholders::_1)
+			); 
 		} }.join();
 
         threads.first.join();
@@ -130,8 +152,7 @@ void Game::joinGame() {
 	});
 }
 
-void Game::handleEvents(SDL_Event& event) {
-
+void Game::handleLocalInput(SDL_Event& event) {
 	Player& player = map.value().getPlayer();
 
 	if (event.type == SDL_KEYDOWN) {
@@ -162,6 +183,37 @@ void Game::handleEvents(SDL_Event& event) {
 		}
 	}
 }
+
+void Game::queueHostInput(SDL_Event& event) {
+	if (event.type == SDL_KEYDOWN) {
+		switch (event.key.keysym.sym) {
+
+			case SDLK_w:
+			case SDLK_UP:
+				quequedMessage.emplace("W");
+				break;
+
+			case SDLK_a:
+			case SDLK_LEFT:
+				quequedMessage.emplace("A");
+				break;
+
+			case SDLK_s:
+			case SDLK_DOWN:
+				quequedMessage.emplace("S");
+				break;
+
+			case SDLK_d:
+			case SDLK_RIGHT:
+				quequedMessage.emplace("D");
+				break;
+		
+			default:
+				break;
+		}
+	}
+}
+
 
 void Game::handleLogic() {
 	map.value().handleInteractions();

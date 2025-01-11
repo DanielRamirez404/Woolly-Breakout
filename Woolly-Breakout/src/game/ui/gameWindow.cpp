@@ -19,7 +19,7 @@ GameWindow::GameWindow(bool isMultiplayer, bool isFirstPlayers)
     allocateUIResources();
 }
 
-void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const Map& map) {
+void GameWindow::startGameLoop(const Map& map, const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic) {
     SDL::Event event{};
     constexpr int delayTime{ 1000 / Constants::Frames::fps };
 		
@@ -27,7 +27,8 @@ void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogi
 
     while (true) {
 
-		loopLogic();
+		if (loopLogic)
+			loopLogic();
         
         while (SDL_PollEvent(&event)) {
 
@@ -41,18 +42,6 @@ void GameWindow::startGameLoop(const std::function<void(SDL::Event&)>& eventLogi
 		renderMap(map);
     }
 }
-
-void GameWindow::startRenderLoop(const Map& map) {
-    constexpr int delayTime{ 1000 / Constants::Frames::fps };
-		
-	renderMap(map);
-
-    while (true) {
-		SDL_Delay(delayTime);
-		renderMap(map);
-	}
-}
-
 
 void GameWindow::initializeLibraries() {
 	
@@ -132,7 +121,7 @@ void GameWindow::addMapToRenderer(const Map& map) {
 	}};
 
 	const float i_off_constant{ coordinates.i - static_cast<float>(roundedCoordinates.i) };
-	const float j_off_constant{ coordinates.j - static_cast<float>(roundedCoordinates.j)};
+	const float j_off_constant{ coordinates.j - static_cast<float>(roundedCoordinates.j) };
 
 	for (int i{min_i}, i_count{0}; i <= max_i; increaseBoth(i, i_count))
 		for (int j{min_j}, j_count{0}; j <= max_j; increaseBoth(j, j_count)) {
