@@ -35,11 +35,15 @@ void Game::run() {
 }
 
 void Game::startSoloGame() {
+	map.emplace();
 	GameWindow gameWindow{};
-	gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map);
+	gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map.value());
 }
 
 void Game::hostGame() {
+
+	map.emplace(false);
+
 	tryNetworkingFunction([&]() {
 
         GameServer server{Constants::Networking::defaultPort};
@@ -47,7 +51,7 @@ void Game::hostGame() {
 		server.broadcast( 
 			std::string{
 				1, 'm'
-			}.append(map.toString())
+			}.append(map.value().toString())
 		);
 
         auto threads{
@@ -61,12 +65,12 @@ void Game::hostGame() {
 					//somehow this helps to get a low latency, I believe... (I don't think it makes sense, though)
 					std::cout << std::string{
 							1, 'p'
-						}.append(map.getPlayerString()) << '\n'; 
+						}.append(map.value().getPlayerString()) << '\n'; 
 
                     return std::optional<std::string>{
 						std::string{
 							1, 'p'
-						}.append(map.getPlayerString()) 
+						}.append(map.value().getPlayerString()) 
 					};
                 },
 
@@ -75,8 +79,8 @@ void Game::hostGame() {
         };
 
 		std::thread{ [&]() {
-			GameWindow gameWindow{};
-			gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map); 
+			GameWindow gameWindow{true};
+			gameWindow.startGameLoop(std::bind(&Game::handleEvents, this, std::placeholders::_1), std::bind(&Game::handleLogic, this), map.value()); 
 		}}.join();
 
         threads.first.join();
@@ -85,6 +89,9 @@ void Game::hostGame() {
 }
 
 void Game::joinGame() {
+
+	map.emplace(false);
+
 	tryNetworkingFunction([&]() {
 		GameClient client{};
         client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
@@ -95,9 +102,9 @@ void Game::joinGame() {
 					std::string info{ message.substr(2) };
 
 					if (startingFlag == 'm')
-						map.readString(std::move(info));
+						map.value().readString(std::move(info));
 					else if (startingFlag == 'p')
-						map.readPlayerString(std::move(info));
+						map.value().readPlayerString(std::move(info));
                 },
 
                 []() {
@@ -115,8 +122,8 @@ void Game::joinGame() {
         };
 
 		std::thread{ [&]() { 
-			GameWindow gameWindow{};
-			gameWindow.startRenderLoop(map); 
+			GameWindow gameWindow{true, false};
+			gameWindow.startRenderLoop(map.value()); 
 		} }.join();
 
         threads.first.join();
@@ -126,7 +133,7 @@ void Game::joinGame() {
 
 void Game::handleEvents(SDL_Event& event) {
 
-	Player& player = map.getPlayer();
+	Player& player = map.value().getPlayer();
 
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
@@ -158,5 +165,5 @@ void Game::handleEvents(SDL_Event& event) {
 }
 
 void Game::handleLogic() {
-	map.handleInteractions();
+	map.value().handleInteractions();
 }

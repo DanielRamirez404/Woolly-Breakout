@@ -24,7 +24,7 @@ class Game {
 		Host hostType{};
 		std::optional<std::string> server_IPv4;
 
-		Map map{};
+		std::optional<Map> map{ std::nullopt };
 
 		void startSoloGame();
 		void hostGame();

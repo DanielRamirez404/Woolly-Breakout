@@ -7,7 +7,10 @@
 #include <utility>
 #include <string>
 
-Map::Map() {
+Map::Map(bool isSinglePlayer) {
+
+	if (!isSinglePlayer)
+		secondPlayer.emplace(player.getRoundedCoordinates());
 
 	std::vector<Coordinates<int>> keys{};
 	keys.reserve(Constants::SafeZone::totalKeys);
@@ -50,30 +53,41 @@ bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
 }
 
 void Map::handleInteractions() {
-	if (player.isMoving()) {
-		player.keepMoving();
+	handlePlayerInteractions(player);
 
-		if (!safeZone)
-			return;
+	if (secondPlayer)
+		handlePlayerInteractions(secondPlayer.value());
+}
 
-		Coordinates<int> playerCoordinates = { player.getRoundedCoordinates() };
+void Map::handlePlayerInteractions(Player& handledPlayer) {
+	if (handledPlayer.isMoving()) {
 
-		if (safeZone.value().isKey(playerCoordinates)) {
-			safeZone.value().pickKeyUp(playerCoordinates);
-			matrix[playerCoordinates.i][playerCoordinates.j] = Notation::characters["grass"];
-
-			if (!safeZone.value().isOpen()) {
-				const auto& doorCoordinates = safeZone.value().getDoor();
-				matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
-				safeZone.reset();
-			}
-		}
+		handledPlayer.keepMoving();
+		handlePickedUpKeys(handledPlayer);
 
 	} else {
-		const auto target{ player.getTargetedCoordinates() };
+		const auto target{ handledPlayer.getTargetedCoordinates() };
 		
 		if (target && isLegalMove(target.value()))
-			player.startMove();
+			handledPlayer.startMove();
+	}
+}
+
+void Map::handlePickedUpKeys(Player& handledPlayer) {
+	if (!safeZone)
+		return;
+
+	Coordinates<int> playerCoordinates = { handledPlayer.getRoundedCoordinates() };
+
+	if (safeZone.value().isKey(playerCoordinates)) {
+		safeZone.value().pickKeyUp(playerCoordinates);
+		matrix[playerCoordinates.i][playerCoordinates.j] = Notation::characters["grass"];
+
+		if (!safeZone.value().isOpen()) {
+			const auto& doorCoordinates = safeZone.value().getDoor();
+			matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
+			safeZone.reset();
+		}
 	}
 }
 
@@ -140,6 +154,14 @@ Player& Map::getPlayer() {
 
 const Player& Map::getPlayer() const {
 	return player;
+}
+
+Player& Map::getSecondPlayer() {
+	return secondPlayer.value();
+}
+
+const Player& Map::getSecondPlayer() const {
+	return secondPlayer.value();
 }
 
 const char Map::operator()(int i, int j) const {

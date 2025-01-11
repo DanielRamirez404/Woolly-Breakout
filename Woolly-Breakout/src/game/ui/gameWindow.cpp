@@ -12,7 +12,9 @@
 #include <ranges>
 #include <thread>
 
-GameWindow::GameWindow() {
+GameWindow::GameWindow(bool isMultiplayer, bool isFirstPlayers) 
+	: isMultiplayerGame{ isMultiplayer }, isFirstPlayerPerspective{ isFirstPlayers } 
+{
 	initializeLibraries();
     allocateUIResources();
 }
@@ -88,7 +90,7 @@ void GameWindow::renderMap(const Map& map) {
 	renderer.clear();
 
 	addMapToRenderer(map);
-	addPlayerToRenderer(map);
+	addPlayersToRenderer(map);
 	addStatusToRenderer(map);
 
 	renderer.render();
@@ -122,21 +124,16 @@ void GameWindow::addMapToRenderer(const Map& map) {
 	const int min_j{ roundedPlayer.j - tilesToCenter };
 	const int max_j{ roundedPlayer.j + tilesToCenter + 1 };
 
-	auto increase_i{ [&](int& i, int&i_count) {  
-		++i;
-		++i_count;
-	}};
-
-	auto increase_j{ [&](int& j, int&j_count) {  
-		++j;
-		++j_count;
+	auto increaseBoth{ [&](int& first, int&second) {  
+		++first;
+		++second;
 	}};
 
 	const float i_off_constant{ player.i - static_cast<float>(roundedPlayer.i) };
 	const float j_off_constant{ player.j - static_cast<float>(roundedPlayer.j)};
 
-	for (int i{min_i}, i_count{0}; i <= max_i; increase_i(i, i_count))
-		for (int j{min_j}, j_count{0}; j <= max_j; increase_j(j, j_count)) {
+	for (int i{min_i}, i_count{0}; i <= max_i; increaseBoth(i, i_count))
+		for (int j{min_j}, j_count{0}; j <= max_j; increaseBoth(j, j_count)) {
 
 			if (i < 0 || j < 0 || i >= Constants::Map::Matrix::size || j >= Constants::Map::Matrix::size)
 				continue;
@@ -161,8 +158,20 @@ void GameWindow::addTileToRenderer(char tile) {
 	renderer.addTexture(name);
 }
 
-void GameWindow::addPlayerToRenderer(const Map& map) {
-	const Coordinates<float>& player{ map.getPlayer().getCoordinates() };
+void GameWindow::addPlayersToRenderer(const Map& map) {
 	renderer.setArea(Constants::Map::TileRendering::players, Constants::Map::TileRendering::players, Constants::Map::TileRendering::size);
 	renderer.addTexture("player");
+
+	if (isMultiplayerGame) {
+		const Coordinates<float>& player{ ((isFirstPlayerPerspective) ? map.getPlayer() : map.getSecondPlayer()).getCoordinates() };
+		const Coordinates<float>& teammate{ ((!isFirstPlayerPerspective) ? map.getPlayer() : map.getSecondPlayer()).getCoordinates() };
+		
+		Coordinates<float> relativeCoordinates{ teammate.i - player.i, teammate.j - player.j };
+		relativeCoordinates.i *= Constants::Map::TileRendering::size;
+		relativeCoordinates.j *= Constants::Map::TileRendering::size;
+		const Coordinates<int> printableCoordinates{ Constants::Map::TileRendering::players + static_cast<int>(relativeCoordinates.i), Constants::Map::TileRendering::players + static_cast<int>(relativeCoordinates.j) };
+
+		renderer.setArea(printableCoordinates.j, printableCoordinates.i, Constants::Map::TileRendering::size);
+		renderer.addTexture("player");
+	}
 }

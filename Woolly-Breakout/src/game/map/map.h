@@ -11,7 +11,7 @@ class Map {
 
 	public:
 
-		Map();
+		Map(bool isSinglePlayer = true);
 
 		using Matrix = std::array<std::array<char, Constants::Map::Matrix::size>, Constants::Map::Matrix::size>;
 		
@@ -20,6 +20,8 @@ class Map {
 		bool isLegalMove(const Coordinates<int>& coordinates) const;
 
 		void handleInteractions();
+		void handlePlayerInteractions(Player& handledPlayer);
+		void handlePickedUpKeys(Player& handledPlayer);
 
 		std::string toString();
 		std::string getPlayerString();
@@ -28,6 +30,8 @@ class Map {
 
 		Player& getPlayer();
 		const Player& getPlayer() const;
+		Player& getSecondPlayer();
+		const Player& getSecondPlayer() const;
 
 		const char operator()(int i, int j) const;
 		static bool isOutOfBounds(int i, int j); 
@@ -50,6 +54,7 @@ class Map {
 		};
 
 		Player player{ Coordinates<int>{ 0, 5 } };
+		std::optional<Player> secondPlayer{ std::nullopt };
 		std::optional<SafeZone> safeZone{ std::nullopt };
 
 };
