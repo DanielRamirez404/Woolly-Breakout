@@ -13,6 +13,7 @@
 #include <optional>
 #include <thread>
 #include <utility>
+#include <chrono>
 
 Game::Game(std::string prompt) :
 	hostType { (prompt == "") ? Host::None : ((prompt == "host") ? Host::Server : Host::Client) },
@@ -53,29 +54,27 @@ void Game::hostGame() {
         GameServer server{Constants::Networking::defaultPort};
         server.getAcceptingThread().join();
 		server.broadcast( 
-			std::string{
-				1, 'm'
-			}.append(map.value().toString())
+			std::string{'m', 1}.append(map.value().toString())
 		);
 
         auto threads{
             server.getMessageThreads(
                 [&](std::string message) {
-                    if (message == "W")
-						map.value().getSecondPlayer().queueMove(Direction::UP);
-					else if (message == "A")
-						map.value().getSecondPlayer().queueMove(Direction::LEFT);
-					else if (message == "S")
-						map.value().getSecondPlayer().queueMove(Direction::DOWN);
-					else if (message == "D")
-						map.value().getSecondPlayer().queueMove(Direction::RIGHT);
+                    char startingFlag{ message[0] };
+					std::string info{ message.substr(2) };
+
+					if (startingFlag == 'p')
+						map.value().readSecondPlayerString(info);
                 },
 
                 [&]() {
-					auto message{ (queuedMessage) ? std::optional<std::string>{std::move(queuedMessage.value())} : std::optional<std::string>{ std::nullopt } };
-					queuedMessage.reset();
-					return message;
-                },
+					using namespace std::chrono_literals;
+					std::this_thread::sleep_for(5us);
+
+					return std::optional<std::string>{
+						std::string{'p', 1}.append(map.value().getPlayerString())
+					};
+				},
 
                 []() { return true; }
             )
@@ -106,25 +105,23 @@ void Game::joinGame() {
 		auto threads { 
             client.getMessageThreads(
                 [&](std::string message) {
+					char startingFlag{ message[0] };
+					std::string info{ message.substr(2) };
 
-					if (message == "W")
-						map.value().getPlayer().queueMove(Direction::UP);
-					else if (message == "A")
-						map.value().getPlayer().queueMove(Direction::LEFT);
-					else if (message == "S")
-						map.value().getPlayer().queueMove(Direction::DOWN);
-					else if (message == "D")
-						map.value().getPlayer().queueMove(Direction::RIGHT);
-					
-					else if (message.size() > 1)
-						if (message[1] == 'm')
-							map.value().readString( message.substr(2) );
+					if (startingFlag == 'p')
+						map.value().readPlayerString(info);
+					else if (startingFlag == 'm')
+						map.value().readString(info);
                 },
 
                 [&]() {
-					auto message{ (queuedMessage) ? std::optional<std::string>{std::move(queuedMessage.value())} : std::optional<std::string>{ std::nullopt } };
-					queuedMessage.reset();
-					return message;
+					
+					using namespace std::chrono_literals;
+					std::this_thread::sleep_for(5us);
+
+					return std::optional<std::string>{
+						std::string{'p', 1}.append(map.value().getSecondPlayerString())
+					};
                 },
 
                 []() { return true; }
@@ -184,25 +181,21 @@ void Game::handleMultiplayerInput(SDL_Event& event) {
 			case SDLK_w:
 			case SDLK_UP:
 				player.queueMove(Direction::UP);
-				queuedMessage.emplace("W");
 				break;
 
 			case SDLK_a:
 			case SDLK_LEFT:
 				player.queueMove(Direction::LEFT);
-				queuedMessage.emplace("A");
 				break;
 
 			case SDLK_s:
 			case SDLK_DOWN:
 				player.queueMove(Direction::DOWN);
-				queuedMessage.emplace("S");
 				break;
 
 			case SDLK_d:
 			case SDLK_RIGHT:
 				player.queueMove(Direction::RIGHT);
-				queuedMessage.emplace("D");
 				break;
 		
 			default:
@@ -212,5 +205,6 @@ void Game::handleMultiplayerInput(SDL_Event& event) {
 }
 
 void Game::handleLogic() {
-	map.value().handleInteractions();
+	Player& player{ (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer() };
+	map.value().handlePlayerInteractions(player);
 }

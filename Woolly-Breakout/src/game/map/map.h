@@ -19,6 +19,7 @@ class Map {
 		bool isSafeZoneOpen() const;
 		bool isLegalMove(const Coordinates<int>& coordinates) const;
 
+		void handlePlayerInteractions(Player& handledPlayer);
 		void handleInteractions();
 		
 		std::string toString();
@@ -27,7 +28,7 @@ class Map {
 
 		void readPlayerString(std::string& string);
 		void readSecondPlayerString(std::string& string);
-		void readString(std::string string);
+		void readString(std::string& string);
 
 		Player& getPlayer();
 		const Player& getPlayer() const;
@@ -58,7 +59,6 @@ class Map {
 		std::optional<Player> secondPlayer{ std::nullopt };
 		std::optional<SafeZone> safeZone{ std::nullopt };
 
-		void handlePlayerInteractions(Player& handledPlayer);
 		void handlePickedUpKeys(Player& handledPlayer);
 
 		std::string getStringFrom(const Player& handledPlayer);
