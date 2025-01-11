@@ -17,6 +17,10 @@ void Renderer::setArea(int x, int y, int size) {
 	area = { x, y, size, size };
 }
 
+void Renderer::setArea(int origin, int size) {
+	area = { origin, origin, size, size };
+}
+
 void Renderer::loadTexture(const std::string& name) {	
     std::string path{"../../res/" + name + ".png"};
 	

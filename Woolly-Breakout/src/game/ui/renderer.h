@@ -14,6 +14,7 @@ class Renderer {
 
         void setArea(int x, int y, int width, int height);
         void setArea(int x, int y, int size);
+        void setArea(int origin, int size);
 
         void addColor(int r, int g, int b, int a);
         void addTexture(const std::string& name);

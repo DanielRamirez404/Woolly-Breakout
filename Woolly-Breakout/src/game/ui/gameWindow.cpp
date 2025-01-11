@@ -114,23 +114,25 @@ void GameWindow::addStatusToRenderer(const Map& map) {
 
 void GameWindow::addMapToRenderer(const Map& map) {
 
-	const Coordinates<float>& player{ map.getPlayer().getCoordinates() };
-	const Coordinates<int> roundedPlayer{ map.getPlayer().getRoundedCoordinates() };
+	const auto& player { (isFirstPlayerPerspective) ? map.getPlayer() : map.getSecondPlayer() };
+
+	const Coordinates<float>& coordinates{ player.getCoordinates() };
+	const Coordinates<int> roundedCoordinates{ player.getRoundedCoordinates() };
 
 	constexpr int tilesToCenter{ Constants::Map::TileRendering::center - 1 };
 
-	const int min_i{ roundedPlayer.i - tilesToCenter };
-	const int max_i{ roundedPlayer.i + tilesToCenter + 1 };
-	const int min_j{ roundedPlayer.j - tilesToCenter };
-	const int max_j{ roundedPlayer.j + tilesToCenter + 1 };
+	const int min_i{ roundedCoordinates.i - tilesToCenter };
+	const int max_i{ roundedCoordinates.i + tilesToCenter + 1 };
+	const int min_j{ roundedCoordinates.j - tilesToCenter };
+	const int max_j{ roundedCoordinates.j + tilesToCenter + 1 };
 
 	auto increaseBoth{ [&](int& first, int&second) {  
 		++first;
 		++second;
 	}};
 
-	const float i_off_constant{ player.i - static_cast<float>(roundedPlayer.i) };
-	const float j_off_constant{ player.j - static_cast<float>(roundedPlayer.j)};
+	const float i_off_constant{ coordinates.i - static_cast<float>(roundedCoordinates.i) };
+	const float j_off_constant{ coordinates.j - static_cast<float>(roundedCoordinates.j)};
 
 	for (int i{min_i}, i_count{0}; i <= max_i; increaseBoth(i, i_count))
 		for (int j{min_j}, j_count{0}; j <= max_j; increaseBoth(j, j_count)) {
@@ -159,7 +161,7 @@ void GameWindow::addTileToRenderer(char tile) {
 }
 
 void GameWindow::addPlayersToRenderer(const Map& map) {
-	renderer.setArea(Constants::Map::TileRendering::players, Constants::Map::TileRendering::players, Constants::Map::TileRendering::size);
+	renderer.setArea(Constants::Map::TileRendering::players, Constants::Map::TileRendering::size);
 	renderer.addTexture("player");
 
 	if (isMultiplayerGame) {
