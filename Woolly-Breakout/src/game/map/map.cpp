@@ -103,7 +103,7 @@ std::string Map::toString() {
 	return string;
 }
 
-void Map::readString(std::string string) {
+void Map::readString(std::string& string) {
 	std::vector<Coordinates<int>> keys{};
 	Coordinates<int> door{-1, -1};
 	keys.reserve(Constants::SafeZone::totalKeys);
@@ -128,24 +128,40 @@ void Map::readString(std::string string) {
 	safeZone = {std::move(door), keys};
 }
 
-std::string Map::getPlayerString() {
+std::string Map::getStringFrom(const Player& handledPlayer) {
 	std::string string{""};
-	auto playerCoordinates{ player.getCoordinates() };
+	auto coordinates{ handledPlayer.getCoordinates() };
 
-	string.append( std::to_string(playerCoordinates.i) );
+	string.append( std::to_string(coordinates.i) );
 	string += ',';
-	string.append( std::to_string(playerCoordinates.j) );
+	string.append( std::to_string(coordinates.j) );
 
 	return string;
 }
 
-void Map::readPlayerString(std::string string) {
+std::string Map::getPlayerString() {
+	return getStringFrom(player);
+}
+
+std::string Map::getSecondPlayerString() {
+	return getStringFrom(secondPlayer.value());
+}
+
+void Map::readStringFor(std::string& string, Player& handledPlayer) {
 	int commaIndex{ static_cast<int>(string.find(',')) };
 
 	float i_player_coordinate{ std::stof( string.substr(0, commaIndex) ) };
 	float j_player_coordinate{ std::stof( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
 
-	player.setCoordinates({i_player_coordinate, j_player_coordinate});
+	handledPlayer.setCoordinates({i_player_coordinate, j_player_coordinate});
+}
+
+void Map::readPlayerString(std::string& string) {
+	readStringFor(string, player);
+}
+
+void Map::readSecondPlayerString(std::string& string) {
+	readStringFor(string, secondPlayer.value());
 }
 
 Player& Map::getPlayer() {

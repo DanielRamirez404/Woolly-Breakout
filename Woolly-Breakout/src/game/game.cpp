@@ -62,16 +62,13 @@ void Game::hostGame() {
 
                 [&]() {
 
-					//somehow this helps to get a low latency, I believe... (I don't think it makes sense, though)
-					std::cout << std::string{
-							1, 'p'
-						}.append(map.value().getPlayerString()) << '\n'; 
 
-                    return std::optional<std::string>{
-						std::string{
-							1, 'p'
-						}.append(map.value().getPlayerString()) 
-					};
+					std::string message{ 1, 'p' };
+					message.append(map.value().getPlayerString()).append(":s").append(map.value().getSecondPlayerString());
+					//somehow this helps to get a low latency, I believe... (I don't think it makes sense, though)
+					std::cout << message << '\n';
+
+                    return std::optional<std::string>{ message };
                 },
 
                 []() { return true; }
@@ -102,9 +99,11 @@ void Game::joinGame() {
 					std::string info{ message.substr(2) };
 
 					if (startingFlag == 'm')
-						map.value().readString(std::move(info));
+						map.value().readString(info);
 					else if (startingFlag == 'p')
-						map.value().readPlayerString(std::move(info));
+						map.value().readPlayerString(info);
+					else if (startingFlag == 's')
+						map.value().readSecondPlayerString(info);
                 },
 
                 []() {
