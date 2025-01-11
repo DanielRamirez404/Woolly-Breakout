@@ -103,7 +103,7 @@ std::string Map::toString() {
 	return string;
 }
 
-void Map::readString(std::string& string) {
+void Map::readString(std::string string) {
 	std::vector<Coordinates<int>> keys{};
 	Coordinates<int> door{-1, -1};
 	keys.reserve(Constants::SafeZone::totalKeys);

@@ -23,14 +23,14 @@ class Game {
 
 		Host hostType{};
 		std::optional<std::string> server_IPv4{};
-		std::optional<std::string> quequedMessage{};
+		std::optional<std::string> queuedMessage{};
 		std::optional<Map> map{ std::nullopt };
 
 		void startSoloGame();
 		void hostGame();
 		void joinGame();
 
-		void handleLocalInput(SDL_Event& event);
-		void queueHostInput(SDL_Event& event);
+		void handleSoloInput(SDL_Event& event);
+		void handleMultiplayerInput(SDL_Event& event);
 		void handleLogic();
 };

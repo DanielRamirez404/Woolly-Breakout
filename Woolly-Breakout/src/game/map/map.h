@@ -27,7 +27,7 @@ class Map {
 
 		void readPlayerString(std::string& string);
 		void readSecondPlayerString(std::string& string);
-		void readString(std::string& string);
+		void readString(std::string string);
 
 		Player& getPlayer();
 		const Player& getPlayer() const;
