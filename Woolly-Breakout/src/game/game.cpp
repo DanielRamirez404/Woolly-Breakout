@@ -1,5 +1,6 @@
 #include "game.h"
 #include "map/map.h"
+#include "ui/elements.h"
 #include "entities/player.h"
 #include "map/utilities.h"
 #include "../constants/notation.h"
@@ -7,7 +8,6 @@
 #include "../networking/classes/server.h"
 #include "../networking/classes/client.h"
 #include "../networking/utilities.h"
-#include "SDL.h"
 #include <string>
 #include <functional>
 #include <optional>
@@ -22,32 +22,32 @@ Game::Game(std::string prompt) :
 void Game::run() {
 	switch (hostType) {
 		case Host::None:
-			startSoloGame();
+			map.emplace();
+			startGame();
 			break;
 		
 		case Host::Server:
+			map.emplace(false);
 			hostGame();
 			break;
 
 		case Host::Client:
+			map.emplace(false);
 			joinGame();
 			break;
 	}
 }
 
-void Game::startSoloGame() {
-	map.emplace();
-	GameWindow gameWindow{};
+void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
+	GameWindow gameWindow{ isMultiplayer, isFirstPlayers };
 	gameWindow.startGameLoop(
 		map.value(), 
-		std::bind(&Game::handleSoloInput, this, std::placeholders::_1),
-		std::bind(&Game::handleLogic, this)
+		[&](SDL::Event& event) { handleInput(getThisPlayer(), event); }, 
+		[&]() { map.value().handlePlayerInteractions(getThisPlayer()); }
 	);
 }
 
 void Game::hostGame() {
-
-	map.emplace(false);
 
 	tryNetworkingFunction([&]() {
 
@@ -70,33 +70,20 @@ void Game::hostGame() {
                 [&]() {
 					using namespace std::chrono_literals;
 					std::this_thread::sleep_for(5us);
-
-					return std::optional<std::string>{
-						std::string{'p', 1}.append(map.value().getPlayerString())
-					};
+					return std::string{'p', 1}.append(map.value().getPlayerString());
 				},
 
                 []() { return true; }
             )
         };
 
-		std::thread{ [&]() {
-			GameWindow gameWindow{true};
-			gameWindow.startGameLoop(
-				map.value(), 
-				std::bind(&Game::handleMultiplayerInput, this, std::placeholders::_1),
-				std::bind(&Game::handleLogic, this)
-			); 
-		}}.join();
-
+		std::thread{ [&]() { startGame(true); }}.join();
         threads.first.join();
         threads.second.join();
     });
 }
 
 void Game::joinGame() {
-
-	map.emplace(false);
 
 	tryNetworkingFunction([&]() {
 		GameClient client{};
@@ -115,36 +102,26 @@ void Game::joinGame() {
                 },
 
                 [&]() {
-					
 					using namespace std::chrono_literals;
 					std::this_thread::sleep_for(5us);
-
-					return std::optional<std::string>{
-						std::string{'p', 1}.append(map.value().getSecondPlayerString())
-					};
+					return std::string{'p', 1}.append(map.value().getSecondPlayerString());
                 },
 
                 []() { return true; }
             )    
         };
 
-		std::thread{ [&]() { 
-			GameWindow gameWindow{true, false};
-			gameWindow.startGameLoop(
-				map.value(),
-				std::bind(&Game::handleMultiplayerInput, this, std::placeholders::_1),
-				std::bind(&Game::handleLogic, this)
-			); 
-		} }.join();
-
+		std::thread{ [&]() { startGame(true, false); }}.join();
         threads.first.join();
         threads.second.join();
 	});
 }
 
-void Game::handleSoloInput(SDL_Event& event) {
-	Player& player{ map.value().getPlayer() };
+Player& Game::getThisPlayer() {
+	return (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
+}
 
+void Game::handleInput(Player& player, SDL::Event& event) {
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
 			case SDLK_w:
@@ -171,40 +148,4 @@ void Game::handleSoloInput(SDL_Event& event) {
 				break;
 		}
 	}
-}
-
-void Game::handleMultiplayerInput(SDL_Event& event) {
-	Player& player{ (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer() };
-
-	if (event.type == SDL_KEYDOWN) {
-		switch (event.key.keysym.sym) {
-			case SDLK_w:
-			case SDLK_UP:
-				player.queueMove(Direction::UP);
-				break;
-
-			case SDLK_a:
-			case SDLK_LEFT:
-				player.queueMove(Direction::LEFT);
-				break;
-
-			case SDLK_s:
-			case SDLK_DOWN:
-				player.queueMove(Direction::DOWN);
-				break;
-
-			case SDLK_d:
-			case SDLK_RIGHT:
-				player.queueMove(Direction::RIGHT);
-				break;
-		
-			default:
-				break;
-		}
-	}
-}
-
-void Game::handleLogic() {
-	Player& player{ (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer() };
-	map.value().handlePlayerInteractions(player);
 }

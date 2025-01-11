@@ -22,12 +22,8 @@ MessageHandler getMessageHandler(Socket& socket, const InputHandler& handleMessa
         }},
 
         std::thread{ [&]() {
-            while (getLoopCondition()) {
-                auto message{ getOutput() };
-
-                if (message) 
-                    socket.send(message.value());
-            }
+            while (getLoopCondition())
+                socket.send(getOutput());
         }}
     };
 }

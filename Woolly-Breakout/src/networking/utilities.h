@@ -8,7 +8,7 @@
 
 using MessageHandler = std::pair<std::thread, std::thread>;
 using InputHandler = std::function<void(std::string)>;
-using OutputGetter = std::function<std::optional<std::string>()>;
+using OutputGetter = std::function<std::string()>;
 using LoopEnder = std::function<bool()>;
 
 void tryNetworkingFunction(const std::function<void()>& function);
