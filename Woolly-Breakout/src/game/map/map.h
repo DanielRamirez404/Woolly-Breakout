@@ -75,8 +75,4 @@ class Map {
 
 		std::string getStringFrom(const Player& handledPlayer);
 		void readStringFor(std::string& string, Player& handledPlayer);
-
-		std::string coordinateToString(const Coordinates<int>& coordinates);
-		std::string coordinateToString(const Coordinates<float>& coordinates);
-		const Coordinates<int> stringToCoordinates(std::string& string);
 };

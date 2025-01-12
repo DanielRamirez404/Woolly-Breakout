@@ -109,7 +109,7 @@ void Map::readString(std::string& string) {
 }
 
 std::string Map::getStringFrom(const Player& handledPlayer) {
-	return coordinateToString(handledPlayer.getCoordinates());
+	return handledPlayer.getCoordinates().toString();
 }
 
 std::string Map::getPlayerString() {
@@ -121,12 +121,7 @@ std::string Map::getSecondPlayerString() {
 }
 
 void Map::readStringFor(std::string& string, Player& handledPlayer) {
-	int commaIndex{ static_cast<int>(string.find(',')) };
-
-	float i_player_coordinate{ std::stof( string.substr(0, commaIndex) ) };
-	float j_player_coordinate{ std::stof( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
-
-	handledPlayer.setCoordinates({i_player_coordinate, j_player_coordinate});
+	handledPlayer.setCoordinates(Coordinates<float>{ string });
 }
 
 void Map::readPlayerString(std::string& string) {
@@ -157,26 +152,6 @@ const char Map::operator()(int i, int j) const {
 	return matrix[i][j];
 }
 
-std::string Map::coordinateToString(const Coordinates<int>& coordinates) {
-	std::string string{""};
-
-	string.append( std::to_string(coordinates.i) );
-	string += ',';
-	string.append( std::to_string(coordinates.j) );
-
-	return string;
-}
-
-std::string Map::coordinateToString(const Coordinates<float>& coordinates) {
-	std::string string{""};
-
-	string.append( std::to_string(coordinates.i) );
-	string += ',';
-	string.append( std::to_string(coordinates.j) );
-
-	return string;
-}
-
 bool Map::isThereAnyEvent() {
 	return !events.empty();
 }
@@ -187,23 +162,14 @@ std::pair<Map::Event, std::string> Map::getFirstEvent() {
 	return event;
 }
 
-const Coordinates<int> Map::stringToCoordinates(std::string& string) {
-	int commaIndex{ static_cast<int>(string.find(',')) };
-
-	int i{ std::stoi( string.substr(0, commaIndex) ) };
-	int j{ std::stoi( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
-
-	return { i, j };
-}
-
 void Map::handlePickingKeyUp(std::string& eventString) {
-	handlePickingKeyUp(stringToCoordinates(eventString));
+	handlePickingKeyUp(Coordinates<int>{ eventString });
 }
 
 void Map::handlePickingKeyUp(const Coordinates<int>& coordinates) {
 	if (safeZone && safeZone.value().isKey(coordinates)) {
 		safeZone.value().pickKeyUp(coordinates);
-		events.push( {Event::PickUpKey, coordinateToString(coordinates)} );
+		events.push( { Event::PickUpKey, coordinates.toString() } );
 		matrix[coordinates.i][coordinates.j] = Notation::characters["grass"];
 
 		if (!safeZone.value().isOpen()) {
