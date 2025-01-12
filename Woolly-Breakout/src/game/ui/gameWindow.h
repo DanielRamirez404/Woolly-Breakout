@@ -8,7 +8,7 @@
 class GameWindow {
 	public:
 
-		GameWindow(bool isMultiplayer = false, bool isFirstPlayers = true);
+		GameWindow(bool isMultiplayer, bool isFirstPlayers);
         void startGameLoop(const Map& map, const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic = nullptr );
 
 	private:

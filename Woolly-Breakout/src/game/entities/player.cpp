@@ -11,6 +11,10 @@ const Coordinates<float>& Player::getCoordinates() const {
     return coordinates;
 }
 
+Coordinates<float>& Player::getCoordinates() {
+	return coordinates;
+}
+
 void Player::setCoordinates(const Coordinates<float>& newCoordinates) {
 	coordinates = newCoordinates;
 }

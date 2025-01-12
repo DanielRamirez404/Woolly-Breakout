@@ -52,13 +52,6 @@ bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
 	return tileValue == Notation::characters["grass"] || tileValue == Notation::characters["key"];
 }
 
-void Map::handleInteractions() {
-	handlePlayerInteractions(player);
-
-	if (secondPlayer)
-		handlePlayerInteractions(secondPlayer.value());
-}
-
 void Map::handlePlayerInteractions(Player& handledPlayer) {
 	if (handledPlayer.isMoving()) {
 		handledPlayer.keepMoving();
@@ -106,30 +99,6 @@ void Map::readString(std::string& string) {
 		return;
 
 	safeZone = {std::move(door), keys};
-}
-
-std::string Map::getStringFrom(const Player& handledPlayer) {
-	return handledPlayer.getCoordinates().toString();
-}
-
-std::string Map::getPlayerString() {
-	return getStringFrom(player);
-}
-
-std::string Map::getSecondPlayerString() {
-	return getStringFrom(secondPlayer.value());
-}
-
-void Map::readStringFor(std::string& string, Player& handledPlayer) {
-	handledPlayer.setCoordinates(Coordinates<float>{ string });
-}
-
-void Map::readPlayerString(std::string& string) {
-	readStringFor(string, player);
-}
-
-void Map::readSecondPlayerString(std::string& string) {
-	readStringFor(string, secondPlayer.value());
 }
 
 Player& Map::getPlayer() {

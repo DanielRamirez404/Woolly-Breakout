@@ -29,12 +29,12 @@ void Game::run() {
 		
 		case Host::Server:
 			map.emplace(false);
-			hostGame();
+			tryNetworkingFunction(std::bind(&Game::hostGame, this));
 			break;
 
 		case Host::Client:
 			map.emplace(false);
-			joinGame();
+			tryNetworkingFunction(std::bind(&Game::joinGame, this));
 			break;
 	}
 }
@@ -49,101 +49,76 @@ void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
 }
 
 void Game::hostGame() {
+	GameServer server{Constants::Networking::defaultPort};
+	server.getAcceptingThread().join();
+	server.broadcast( 
+		std::string{'m', 1}.append(map.value().toString())
+	);
 
-	tryNetworkingFunction([&]() {
+	auto threads{
+		server.getMessageThreads(
+			[&](std::string message) { handleMessageReading(getTeammate(), message); },
+			[&]() { return getNetworkingMessage(getThisPlayer()); },
+			[]() { return true; }
+		)
+	};
 
-        GameServer server{Constants::Networking::defaultPort};
-        server.getAcceptingThread().join();
-		server.broadcast( 
-			std::string{'m', 1}.append(map.value().toString())
-		);
-
-        auto threads{
-            server.getMessageThreads(
-                [&](std::string message) {
-                    char startingFlag{ message[0] };
-					std::string info{ message.substr(2) };
-
-					if (startingFlag == 'p')
-						map.value().readSecondPlayerString(info);
-					else if (startingFlag == 'k')
-						map.value().handlePickingKeyUp(info);
-                },
-
-                [&]() {
-					if (map.value().isThereAnyEvent()) {
-						auto event{ map.value().getFirstEvent() };
-						switch (event.first) {
-							case Map::Event::PickUpKey:
-								return std::string{'k', 1}.append(event.second);
-							case Map::Event::Win:
-								return std::string{'w', 1};
-						}	
-					}
-
-					using namespace std::chrono_literals;
-					std::this_thread::sleep_for(5us);
-					return std::string{'p', 1}.append(map.value().getPlayerString());
-				},
-
-                []() { return true; }
-            )
-        };
-
-		std::thread{ [&]() { startGame(true); }}.join();
-        threads.first.join();
-        threads.second.join();
-    });
+	std::thread{ [&]() { startGame(true); }}.join();
+	threads.first.join();
+	threads.second.join();
 }
 
 void Game::joinGame() {
+	GameClient client{};
+	client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
+	
+	auto threads { 
+		client.getMessageThreads(
+			[&](std::string message) { handleMessageReading(getTeammate(), message); },
+			[&]() { return getNetworkingMessage(getThisPlayer()); },
+			[]() { return true; }
+		)    
+	};
 
-	tryNetworkingFunction([&]() {
-		GameClient client{};
-        client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
-        
-		auto threads { 
-            client.getMessageThreads(
-                [&](std::string message) {
-					char startingFlag{ message[0] };
-					std::string info{ message.substr(2) };
-
-					if (startingFlag == 'p')
-						map.value().readPlayerString(info);
-					else if (startingFlag == 'm')
-						map.value().readString(info);
-					else if (startingFlag == 'k')
-						map.value().handlePickingKeyUp(info);
-                },
-
-                [&]() {
-					if (map.value().isThereAnyEvent()) {
-						auto event{ map.value().getFirstEvent() };
-						switch (event.first) {
-							case Map::Event::PickUpKey:
-								return std::string{'k', 1}.append(event.second);
-							case Map::Event::Win:
-								return std::string{'w', 1};
-						}	
-					}
-
-					using namespace std::chrono_literals;
-					std::this_thread::sleep_for(5us);
-					return std::string{'p', 1}.append(map.value().getSecondPlayerString());
-                },
-
-                []() { return true; }
-            )    
-        };
-
-		std::thread{ [&]() { startGame(true, false); }}.join();
-        threads.first.join();
-        threads.second.join();
-	});
+	std::thread{ [&]() { startGame(true, false); }}.join();
+	threads.first.join();
+	threads.second.join();
 }
 
 Player& Game::getThisPlayer() {
 	return (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
+}
+
+Player& Game::getTeammate() {
+	return (hostType != Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
+}
+
+std::string Game::getNetworkingMessage(Player& player) {
+	if (map.value().isThereAnyEvent()) {
+		auto event{ map.value().getFirstEvent() };
+		switch (event.first) {
+			case Map::Event::PickUpKey:
+				return std::string{'k', 1}.append(event.second);
+			case Map::Event::Win:
+				return std::string{'w', 1};
+		}	
+	}
+
+	using namespace std::chrono_literals;
+	std::this_thread::sleep_for(5us);
+	return std::string{'p', 1}.append(player.getCoordinates().toString());
+}
+
+void Game::handleMessageReading(Player& player, std::string& message) {
+	char startingFlag{ message[0] };
+	std::string info{ message.substr(2) };
+
+	if (startingFlag == 'p')
+		player.getCoordinates().read(info);
+	else if (startingFlag == 'k')
+		map.value().handlePickingKeyUp(info);
+	else if (startingFlag == 'm')
+		map.value().readString(info);
 }
 
 void Game::handleInput(Player& player, SDL::Event& event) {

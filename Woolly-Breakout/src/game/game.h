@@ -31,7 +31,11 @@ class Game {
 		void hostGame();
 		void joinGame();
 
+		std::string getNetworkingMessage(Player& player);
+		void handleMessageReading(Player& player, std::string& message);
+
 		void handleInput(Player& player, SDL::Event&);
 		
 		Player& getThisPlayer();
+		Player& getTeammate();
 };

@@ -20,6 +20,7 @@ class Player {
         bool isMoving();
 
         const Coordinates<float>& getCoordinates() const;
+        Coordinates<float>& getCoordinates();
         const Coordinates<int> getRoundedCoordinates() const;
 
     private:

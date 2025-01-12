@@ -27,7 +27,6 @@ class Map {
 		bool isLegalMove(const Coordinates<int>& coordinates) const;
 
 		void handlePlayerInteractions(Player& handledPlayer);
-		void handleInteractions();
 
 		bool isThereAnyEvent();
 		std::pair<Event, std::string> getFirstEvent();
@@ -35,11 +34,6 @@ class Map {
 		void handlePickingKeyUp(const Coordinates<int>& coordinates);
 		
 		std::string toString();
-		std::string getPlayerString();
-		std::string getSecondPlayerString();
-
-		void readPlayerString(std::string& string);
-		void readSecondPlayerString(std::string& string);
 		void readString(std::string& string);
 
 		Player& getPlayer();
@@ -72,7 +66,4 @@ class Map {
 		std::optional<SafeZone> safeZone{ std::nullopt };
 
 		std::queue<std::pair<Event, std::string>> events{};
-
-		std::string getStringFrom(const Player& handledPlayer);
-		void readStringFor(std::string& string, Player& handledPlayer);
 };
