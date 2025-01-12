@@ -45,7 +45,8 @@ void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
 	gameWindow.startGameLoop(
 		map.value(), 
 		[&](SDL::Event& event) { handleInput(getThisPlayer(), event); }, 
-		[&]() { map.value().handlePlayerInteractions(getThisPlayer()); }
+		[&]() { map.value().handlePlayerInteractions(getThisPlayer()); },
+		[&]() { return !isRunning; }
 	);
 }
 
@@ -69,13 +70,14 @@ void Game::runMultiplayerThreads(GameHost& host) {
 		host.getMessageThreads(
 			[&](std::string message) { handleMessageReading(getTeammate(), message); },
 			[&]() { return getNetworkingMessage(getThisPlayer()); },
-			[]() { return true; }
+			[&]() { return isRunning; }
 		)
 	};
 
-	std::thread{ [&]() { startGame(true, hostType == Host::Server); }}.join();
-	threads.first.join();
+	std::thread game{ [&]() { startGame(true, hostType == Host::Server); }};
 	threads.second.join();
+	threads.first.join();
+	game.join();
 }
 
 std::string Game::getNetworkingMessage(Player& player) {
@@ -100,6 +102,7 @@ std::string Game::getNetworkingMessage(Player& player) {
 				eventMessage = std::string{'k', 1}.append(event.second); 
 				break;
 			case Map::Event::Win:
+				isRunning = false;
 				eventMessage = std::string{'w', 1};
 				break;
 		}
@@ -118,6 +121,8 @@ void Game::handleMessageReading(Player& player, std::string& message) {
 		map.value().handlePickingKeyUp(info);
 	else if (startingFlag == 'm')
 		map.value().readString(info);
+	else if (startingFlag == 'w')
+		isRunning = false;
 }
 
 void Game::handleInput(Player& player, SDL::Event& event) {

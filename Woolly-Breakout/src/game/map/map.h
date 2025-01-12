@@ -30,6 +30,7 @@ class Map {
 
 		bool isThereAnyEvent();
 		std::pair<Event, std::string> getFirstEvent();
+
 		void handlePickingKeyUp(std::string& eventString);
 		void handlePickingKeyUp(const Coordinates<int>& coordinates);
 		
@@ -64,6 +65,8 @@ class Map {
 		Player player{ Coordinates<int>{ 0, 5 } };
 		std::optional<Player> secondPlayer{ std::nullopt };
 		std::optional<SafeZone> safeZone{ std::nullopt };
+
+		void handleWinCheking(const Coordinates<int>& coordinates);
 
 		std::queue<std::pair<Event, std::string>> events{};
 };

@@ -56,12 +56,18 @@ void Map::handlePlayerInteractions(Player& handledPlayer) {
 	if (handledPlayer.isMoving()) {
 		handledPlayer.keepMoving();
 		handlePickingKeyUp(handledPlayer.getRoundedCoordinates());
+		handleWinCheking(handledPlayer.getRoundedCoordinates());
 	} else {
 		const auto target{ handledPlayer.getTargetedCoordinates() };
 		
 		if (target && isLegalMove(target.value()))
 			handledPlayer.startMove();
 	}
+}
+
+void Map::handleWinCheking(const Coordinates<int>& coordinates) {
+	if (matrix[coordinates.i][coordinates.j] == Notation::characters["exit"])
+		events.push( { Event::Win, "Congratz!" } );
 }
 
 std::string Map::toString() {
