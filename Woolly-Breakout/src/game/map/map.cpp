@@ -61,33 +61,13 @@ void Map::handleInteractions() {
 
 void Map::handlePlayerInteractions(Player& handledPlayer) {
 	if (handledPlayer.isMoving()) {
-
 		handledPlayer.keepMoving();
-		handlePickedUpKeys(handledPlayer);
-
+		handlePickingKeyUp(handledPlayer.getRoundedCoordinates());
 	} else {
 		const auto target{ handledPlayer.getTargetedCoordinates() };
 		
 		if (target && isLegalMove(target.value()))
 			handledPlayer.startMove();
-	}
-}
-
-void Map::handlePickedUpKeys(Player& handledPlayer) {
-	if (!safeZone)
-		return;
-
-	Coordinates<int> playerCoordinates = { handledPlayer.getRoundedCoordinates() };
-
-	if (safeZone.value().isKey(playerCoordinates)) {
-		safeZone.value().pickKeyUp(playerCoordinates);
-		matrix[playerCoordinates.i][playerCoordinates.j] = Notation::characters["grass"];
-
-		if (!safeZone.value().isOpen()) {
-			const auto& doorCoordinates = safeZone.value().getDoor();
-			matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
-			safeZone.reset();
-		}
 	}
 }
 
@@ -129,14 +109,7 @@ void Map::readString(std::string& string) {
 }
 
 std::string Map::getStringFrom(const Player& handledPlayer) {
-	std::string string{""};
-	auto coordinates{ handledPlayer.getCoordinates() };
-
-	string.append( std::to_string(coordinates.i) );
-	string += ',';
-	string.append( std::to_string(coordinates.j) );
-
-	return string;
+	return coordinateToString(handledPlayer.getCoordinates());
 }
 
 std::string Map::getPlayerString() {
@@ -182,4 +155,61 @@ const Player& Map::getSecondPlayer() const {
 
 const char Map::operator()(int i, int j) const {
 	return matrix[i][j];
+}
+
+std::string Map::coordinateToString(const Coordinates<int>& coordinates) {
+	std::string string{""};
+
+	string.append( std::to_string(coordinates.i) );
+	string += ',';
+	string.append( std::to_string(coordinates.j) );
+
+	return string;
+}
+
+std::string Map::coordinateToString(const Coordinates<float>& coordinates) {
+	std::string string{""};
+
+	string.append( std::to_string(coordinates.i) );
+	string += ',';
+	string.append( std::to_string(coordinates.j) );
+
+	return string;
+}
+
+bool Map::isThereAnyEvent() {
+	return !events.empty();
+}
+
+std::pair<Map::Event, std::string> Map::getFirstEvent() {
+	auto event{ events.front() };
+	events.pop();
+	return event;
+}
+
+const Coordinates<int> Map::stringToCoordinates(std::string& string) {
+	int commaIndex{ static_cast<int>(string.find(',')) };
+
+	int i{ std::stoi( string.substr(0, commaIndex) ) };
+	int j{ std::stoi( string.substr(commaIndex + 1, string.size() - commaIndex - 1) ) };
+
+	return { i, j };
+}
+
+void Map::handlePickingKeyUp(std::string& eventString) {
+	handlePickingKeyUp(stringToCoordinates(eventString));
+}
+
+void Map::handlePickingKeyUp(const Coordinates<int>& coordinates) {
+	if (safeZone && safeZone.value().isKey(coordinates)) {
+		safeZone.value().pickKeyUp(coordinates);
+		events.push( {Event::PickUpKey, coordinateToString(coordinates)} );
+		matrix[coordinates.i][coordinates.j] = Notation::characters["grass"];
+
+		if (!safeZone.value().isOpen()) {
+			const auto& doorCoordinates = safeZone.value().getDoor();
+			matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
+			safeZone.reset();
+		}
+	}
 }

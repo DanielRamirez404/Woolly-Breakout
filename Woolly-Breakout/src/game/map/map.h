@@ -6,10 +6,17 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <queue>
+#include <utility>
 
 class Map {
 
 	public:
+
+		enum Event {
+			PickUpKey,
+			Win
+		};
 
 		Map(bool isSinglePlayer = true);
 
@@ -21,6 +28,11 @@ class Map {
 
 		void handlePlayerInteractions(Player& handledPlayer);
 		void handleInteractions();
+
+		bool isThereAnyEvent();
+		std::pair<Event, std::string> getFirstEvent();
+		void handlePickingKeyUp(std::string& eventString);
+		void handlePickingKeyUp(const Coordinates<int>& coordinates);
 		
 		std::string toString();
 		std::string getPlayerString();
@@ -59,8 +71,12 @@ class Map {
 		std::optional<Player> secondPlayer{ std::nullopt };
 		std::optional<SafeZone> safeZone{ std::nullopt };
 
-		void handlePickedUpKeys(Player& handledPlayer);
+		std::queue<std::pair<Event, std::string>> events{};
 
 		std::string getStringFrom(const Player& handledPlayer);
 		void readStringFor(std::string& string, Player& handledPlayer);
+
+		std::string coordinateToString(const Coordinates<int>& coordinates);
+		std::string coordinateToString(const Coordinates<float>& coordinates);
+		const Coordinates<int> stringToCoordinates(std::string& string);
 };

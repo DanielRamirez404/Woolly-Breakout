@@ -14,6 +14,7 @@
 #include <thread>
 #include <utility>
 #include <chrono>
+#include <iostream>
 
 Game::Game(std::string prompt) :
 	hostType { (prompt == "") ? Host::None : ((prompt == "host") ? Host::Server : Host::Client) },
@@ -65,9 +66,21 @@ void Game::hostGame() {
 
 					if (startingFlag == 'p')
 						map.value().readSecondPlayerString(info);
+					else if (startingFlag == 'k')
+						map.value().handlePickingKeyUp(info);
                 },
 
                 [&]() {
+					if (map.value().isThereAnyEvent()) {
+						auto event{ map.value().getFirstEvent() };
+						switch (event.first) {
+							case Map::Event::PickUpKey:
+								return std::string{'k', 1}.append(event.second);
+							case Map::Event::Win:
+								return std::string{'w', 1};
+						}	
+					}
+
 					using namespace std::chrono_literals;
 					std::this_thread::sleep_for(5us);
 					return std::string{'p', 1}.append(map.value().getPlayerString());
@@ -99,9 +112,21 @@ void Game::joinGame() {
 						map.value().readPlayerString(info);
 					else if (startingFlag == 'm')
 						map.value().readString(info);
+					else if (startingFlag == 'k')
+						map.value().handlePickingKeyUp(info);
                 },
 
                 [&]() {
+					if (map.value().isThereAnyEvent()) {
+						auto event{ map.value().getFirstEvent() };
+						switch (event.first) {
+							case Map::Event::PickUpKey:
+								return std::string{'k', 1}.append(event.second);
+							case Map::Event::Win:
+								return std::string{'w', 1};
+						}	
+					}
+
 					using namespace std::chrono_literals;
 					std::this_thread::sleep_for(5us);
 					return std::string{'p', 1}.append(map.value().getSecondPlayerString());
