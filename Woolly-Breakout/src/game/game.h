@@ -3,6 +3,7 @@
 #include "ui/elements.h"
 #include "entities/player.h"
 #include "ui/gameWindow.h"
+#include "../networking/classes/host.h"
 #include <string>
 #include <optional>
 #include <unordered_map>
@@ -31,6 +32,7 @@ class Game {
 		void hostGame();
 		void joinGame();
 
+		GameHost::MessageHandler runMultiplayerThreads(GameHost& host);
 		std::string getNetworkingMessage(Player& player);
 		void handleMessageReading(Player& player, std::string& message);
 

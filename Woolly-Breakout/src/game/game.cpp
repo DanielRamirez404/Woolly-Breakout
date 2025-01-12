@@ -5,6 +5,7 @@
 #include "map/utilities.h"
 #include "../constants/notation.h"
 #include "../constants/constants.h"
+#include "../networking/classes/host.h"
 #include "../networking/classes/server.h"
 #include "../networking/classes/client.h"
 #include "../networking/utilities.h"
@@ -51,46 +52,30 @@ void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
 void Game::hostGame() {
 	GameServer server{Constants::Networking::defaultPort};
 	server.getAcceptingThread().join();
-	server.broadcast( 
-		std::string{'m', 1}.append(map.value().toString())
-	);
+	server.broadcast( std::string{'m', 1}.append(map.value().toString()) );
 
-	auto threads{
-		server.getMessageThreads(
-			[&](std::string message) { handleMessageReading(getTeammate(), message); },
-			[&]() { return getNetworkingMessage(getThisPlayer()); },
-			[]() { return true; }
-		)
-	};
-
-	std::thread{ [&]() { startGame(true); }}.join();
-	threads.first.join();
-	threads.second.join();
+	runMultiplayerThreads(server);
 }
 
 void Game::joinGame() {
 	GameClient client{};
 	client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
 	
-	auto threads { 
-		client.getMessageThreads(
+	runMultiplayerThreads(client);
+}
+
+GameHost::MessageHandler Game::runMultiplayerThreads(GameHost& host) {
+	auto threads{
+		host.getMessageThreads(
 			[&](std::string message) { handleMessageReading(getTeammate(), message); },
 			[&]() { return getNetworkingMessage(getThisPlayer()); },
 			[]() { return true; }
-		)    
+		)
 	};
 
-	std::thread{ [&]() { startGame(true, false); }}.join();
+	std::thread{ [&]() { startGame(true, hostType == Host::Server); }}.join();
 	threads.first.join();
 	threads.second.join();
-}
-
-Player& Game::getThisPlayer() {
-	return (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
-}
-
-Player& Game::getTeammate() {
-	return (hostType != Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
 }
 
 std::string Game::getNetworkingMessage(Player& player) {
@@ -148,4 +133,12 @@ void Game::handleInput(Player& player, SDL::Event& event) {
 				break;
 		}
 	}
+}
+
+Player& Game::getThisPlayer() {
+	return (hostType == Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
+}
+
+Player& Game::getTeammate() {
+	return (hostType != Host::Client) ? map.value().getSecondPlayer() : map.value().getPlayer();
 }
