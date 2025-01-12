@@ -49,7 +49,7 @@ bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
 		return false;
 
 	char tileValue{ matrix[coordinates.i][coordinates.j] };
-	return tileValue == Notation::characters["grass"] || tileValue == Notation::characters["key"];
+	return tileValue == Notation::characters["grass"] || tileValue == Notation::characters["key"] || tileValue == Notation::characters["exit"];
 }
 
 void Map::handlePlayerInteractions(Player& handledPlayer) {
@@ -143,7 +143,7 @@ void Map::handlePickingKeyUp(const Coordinates<int>& coordinates) {
 
 		if (!safeZone.value().isOpen()) {
 			const auto& doorCoordinates = safeZone.value().getDoor();
-			matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["grass"];
+			matrix[doorCoordinates.i][doorCoordinates.j] = Notation::characters["exit"];
 			safeZone.reset();
 		}
 	}

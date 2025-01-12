@@ -6,7 +6,8 @@ std::unordered_map<std::string_view, char> Notation::characters {
     {"grass", '0'},
     {"wall", '1'},
     {"door", '2'},
-    {"key", '3'}
+    {"key", '3'},
+    {"exit", '4'}
 };
 
 std::unordered_map<NetworkEvent, char> networkCharacters {

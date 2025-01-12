@@ -8,6 +8,7 @@
 #include "SDL_image.h"
 #include <stdexcept>
 #include <functional>
+#include <string>
 #include <string_view>
 #include <ranges>
 #include <thread>
@@ -145,7 +146,12 @@ void GameWindow::addTileToRenderer(char tile) {
 	if (tile == Notation::characters["grass"])
 		return;
 
-	const auto& name{ (tile == Notation::characters["door"]) ? "door" : "key" };
+	std::string name{};
+
+	for (const auto& [string, character] : Notation::characters)
+		if (tile == character)
+			name = string;
+
 	renderer.addTexture(name);
 }
 
