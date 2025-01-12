@@ -60,11 +60,11 @@ void Game::hostGame() {
 void Game::joinGame() {
 	GameClient client{};
 	client.connectTo(server_IPv4.value(), Constants::Networking::defaultPort);
-	
+
 	runMultiplayerThreads(client);
 }
 
-GameHost::MessageHandler Game::runMultiplayerThreads(GameHost& host) {
+void Game::runMultiplayerThreads(GameHost& host) {
 	auto threads{
 		host.getMessageThreads(
 			[&](std::string message) { handleMessageReading(getTeammate(), message); },
@@ -79,19 +79,33 @@ GameHost::MessageHandler Game::runMultiplayerThreads(GameHost& host) {
 }
 
 std::string Game::getNetworkingMessage(Player& player) {
-	if (map.value().isThereAnyEvent()) {
-		auto event{ map.value().getFirstEvent() };
-		switch (event.first) {
-			case Map::Event::PickUpKey:
-				return std::string{'k', 1}.append(event.second);
-			case Map::Event::Win:
-				return std::string{'w', 1};
-		}	
+	constexpr int eventSendingTimes{ 5 };
+	static int eventSentCount{ 5 }; 		// initialized as if an event were already sent
+	static std::string eventMessage{ "" };
+
+	if (!map.value().isThereAnyEvent() && eventSentCount >= eventSendingTimes) {
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(5us);
+		return std::string{'p', 1}.append(player.getCoordinates().toString());
 	}
 
-	using namespace std::chrono_literals;
-	std::this_thread::sleep_for(5us);
-	return std::string{'p', 1}.append(player.getCoordinates().toString());
+	if (eventSentCount < eventSendingTimes)
+		++eventSentCount;
+	else {
+		eventSentCount = 0;
+		auto event{ map.value().getFirstEvent() };
+
+		switch (event.first) {
+			case Map::Event::PickUpKey:
+				eventMessage = std::string{'k', 1}.append(event.second); 
+				break;
+			case Map::Event::Win:
+				eventMessage = std::string{'w', 1};
+				break;
+		}
+	}
+
+ 	return eventMessage;	
 }
 
 void Game::handleMessageReading(Player& player, std::string& message) {

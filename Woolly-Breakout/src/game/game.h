@@ -32,7 +32,7 @@ class Game {
 		void hostGame();
 		void joinGame();
 
-		GameHost::MessageHandler runMultiplayerThreads(GameHost& host);
+		void runMultiplayerThreads(GameHost& host);
 		std::string getNetworkingMessage(Player& player);
 		void handleMessageReading(Player& player, std::string& message);
 
