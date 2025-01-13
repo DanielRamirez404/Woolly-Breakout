@@ -8,6 +8,7 @@
 #include <string>
 #include <queue>
 #include <utility>
+#include <functional>
 
 class Map {
 
@@ -15,7 +16,8 @@ class Map {
 
 		enum Event {
 			PickUpKey,
-			Win
+			Win,
+			Quit,
 		};
 
 		Map(bool isSinglePlayer = true);
@@ -26,10 +28,11 @@ class Map {
 		bool isSafeZoneOpen() const;
 		bool isLegalMove(const Coordinates<int>& coordinates) const;
 
-		void handlePlayerInteractions(Player& handledPlayer);
+		void handlePlayerInteractions(Player& handledPlayer, const std::function<void()>& onWin);
 
 		bool isThereAnyEvent();
 		std::pair<Event, std::string> getFirstEvent();
+		void addEvent(const std::pair<Event, std::string>& event);
 
 		void handlePickingKeyUp(std::string& eventString);
 		void handlePickingKeyUp(const Coordinates<int>& coordinates);
@@ -43,7 +46,7 @@ class Map {
 		const Player& getSecondPlayer() const;
 
 		const char operator()(int i, int j) const;
-		static bool isOutOfBounds(int i, int j); 
+		static bool isOutOfBounds(int i, int j);
 
 	private:
 
@@ -66,7 +69,7 @@ class Map {
 		std::optional<Player> secondPlayer{ std::nullopt };
 		std::optional<SafeZone> safeZone{ std::nullopt };
 
-		void handleWinCheking(const Coordinates<int>& coordinates);
+		void handleWinCheking(const Coordinates<int>& coordinates, const std::function<void()>& onWin);
 
 		std::queue<std::pair<Event, std::string>> events{};
 };

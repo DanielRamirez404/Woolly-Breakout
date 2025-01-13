@@ -20,7 +20,7 @@ GameWindow::GameWindow(bool isMultiplayer, bool isFirstPlayers)
     allocateUIResources();
 }
 
-void GameWindow::startGameLoop(const Map& map, const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const std::function<bool()>& endCondition) {
+void GameWindow::startGameLoop(const Map& map, const EventHandler& onEvent, const LogicHandler& onLoop, const QuittingHandler& onQuit, const EndingHandler& endCondition) {
     SDL::Event event{};
     constexpr int delayTime{ 1000 / Constants::Frames::fps };
 		
@@ -28,18 +28,19 @@ void GameWindow::startGameLoop(const Map& map, const std::function<void(SDL::Eve
 
     while (true) {
 
-		if (loopLogic)
-			loopLogic();
+		onLoop();
 
 		if (endCondition())
 			return;
         
         while (SDL_PollEvent(&event)) {
 
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_QUIT) {
+				onQuit();
 				return;
+			}
 
-            eventLogic(event);
+            onEvent(event);
         }
 
 		SDL_Delay(delayTime);

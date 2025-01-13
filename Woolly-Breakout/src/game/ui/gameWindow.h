@@ -8,8 +8,13 @@
 class GameWindow {
 	public:
 
+		using EventHandler = std::function<void(SDL::Event&)>;
+		using LogicHandler = std::function<void()>;
+		using EndingHandler = std::function<bool()>;
+		using QuittingHandler = std::function<void()>;
+
 		GameWindow(bool isMultiplayer, bool isFirstPlayers);
-        void startGameLoop(const Map& map, const std::function<void(SDL::Event&)>& eventLogic, const std::function<void()>& loopLogic, const std::function<bool()>& endCondition);
+        void startGameLoop(const Map& map, const EventHandler& onEvent, const LogicHandler& onLoop, const QuittingHandler& onQuit, const EndingHandler& endCondition);
 
 	private:
 

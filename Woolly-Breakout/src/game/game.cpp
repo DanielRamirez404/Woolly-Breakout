@@ -45,7 +45,13 @@ void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
 	gameWindow.startGameLoop(
 		map.value(), 
 		[&](SDL::Event& event) { handleInput(getThisPlayer(), event); }, 
-		[&]() { map.value().handlePlayerInteractions(getThisPlayer()); },
+		[&]() { map.value().handlePlayerInteractions(getThisPlayer(), [&]() { isRunning = false; }); },
+		[&]() { 
+			if (hostType == Host::None)
+				isRunning = false;
+			else
+				map.value().addEvent({ Map::Event::Quit, "Oops!" }); 
+		},
 		[&]() { return !isRunning; }
 	);
 }
@@ -105,6 +111,9 @@ std::string Game::getNetworkingMessage(Player& player) {
 				isRunning = false;
 				eventMessage = std::string{'w', 1};
 				break;
+			case Map::Event::Quit:
+				isRunning = false;
+				eventMessage = std::string{'q', 1};
 		}
 	}
 
@@ -121,7 +130,7 @@ void Game::handleMessageReading(Player& player, std::string& message) {
 		map.value().handlePickingKeyUp(info);
 	else if (startingFlag == 'm')
 		map.value().readString(info);
-	else if (startingFlag == 'w')
+	else if (startingFlag == 'w' || startingFlag == 'q')
 		isRunning = false;
 }
 

@@ -52,11 +52,11 @@ bool Map::isLegalMove(const Coordinates<int>& coordinates) const {
 	return tileValue == Notation::characters["grass"] || tileValue == Notation::characters["key"] || tileValue == Notation::characters["exit"];
 }
 
-void Map::handlePlayerInteractions(Player& handledPlayer) {
+void Map::handlePlayerInteractions(Player& handledPlayer, const std::function<void()>& onWin) {
 	if (handledPlayer.isMoving()) {
 		handledPlayer.keepMoving();
 		handlePickingKeyUp(handledPlayer.getRoundedCoordinates());
-		handleWinCheking(handledPlayer.getRoundedCoordinates());
+		handleWinCheking(handledPlayer.getRoundedCoordinates(), onWin);
 	} else {
 		const auto target{ handledPlayer.getTargetedCoordinates() };
 		
@@ -65,9 +65,11 @@ void Map::handlePlayerInteractions(Player& handledPlayer) {
 	}
 }
 
-void Map::handleWinCheking(const Coordinates<int>& coordinates) {
-	if (matrix[coordinates.i][coordinates.j] == Notation::characters["exit"])
+void Map::handleWinCheking(const Coordinates<int>& coordinates, const std::function<void()>& onWin) {
+	if (matrix[coordinates.i][coordinates.j] == Notation::characters["exit"]) {
 		events.push( { Event::Win, "Congratz!" } );
+		onWin();
+	}
 }
 
 std::string Map::toString() {
@@ -136,6 +138,11 @@ std::pair<Map::Event, std::string> Map::getFirstEvent() {
 	events.pop();
 	return event;
 }
+
+void Map::addEvent(const std::pair<Event, std::string>& event) {
+	events.push(event);
+}
+
 
 void Map::handlePickingKeyUp(std::string& eventString) {
 	handlePickingKeyUp(Coordinates<int>{ eventString });
