@@ -21,6 +21,8 @@ Game::Game(std::string prompt) :
 	hostType { (prompt == "") ? Host::None : ((prompt == "host") ? Host::Server : Host::Client) },
 	server_IPv4{ (hostType == Host::Client) ? std::optional<std::string>{prompt} : std::optional<std::string>{std::nullopt} } {}
 
+Game::Game() : Game::Game("") {};
+
 void Game::run() {
 	switch (hostType) {
 		case Host::None:

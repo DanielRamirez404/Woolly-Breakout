@@ -12,6 +12,7 @@ class Game {
 	public:
 
 		Game(std::string prompt);
+        Game();
 
 		enum Host {
 			Server,
