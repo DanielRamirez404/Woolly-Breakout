@@ -14,7 +14,7 @@ MenuWindow::MenuWindow() : Window() {
 
 void MenuWindow::addButton(const std::string& texture, MenuWindow::Button button) {
     renderer.setArea(button.x, button.y, button.width, button.length);
-    renderer.addTexture(texture); 
+    renderer.addTexture(texture + std::string{"-btn"}); 
     buttons.push_back(button);
 }
 

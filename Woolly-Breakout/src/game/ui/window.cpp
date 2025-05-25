@@ -41,6 +41,11 @@ void Window::allocateUIResources() {
 
     renderer.setTransparentMode();
 
+	constexpr std::string_view buttons[] { "play", "host", "join", "solo" };
+
+	for (std::string_view name : buttons)
+		renderer.loadTexture(std::string{name.data()} + std::string{"-btn"});
+
 	constexpr std::string_view extraNames[] { "player", "frame", "menu-bg" };
 
 	for (std::string_view name : extraNames)

@@ -6,7 +6,6 @@
 #include "../entities/safe-zone.h"
 #include "SDL.h"
 #include "SDL_image.h"
-#include <stdexcept>
 #include <functional>
 #include <string>
 #include <string_view>

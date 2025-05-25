@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 		std::string prompt{ (argc == 1) ? "" : argv[1] };
 		MenuWindow w{};
 
-        w.addButton("grass", MenuWindow::Button{ 300, 300, 250, 100, [&](){ 
+        w.addButton("play", MenuWindow::Button{ 300, 300, 250, 100, [&](){ 
             Game myGame{std::move(prompt)};
             myGame.run(); 
         } });
