@@ -1,11 +1,11 @@
 #pragma once
+#include "window.h"
 #include "elements.h"
-#include "renderer.h"
 #include "../map/map.h"
 #include "../entities/player.h"
 #include <functional>
 
-class GameWindow {
+class GameWindow : private Window {
 	public:
 
 		using EventHandler = std::function<void(SDL::Event&)>;
@@ -14,17 +14,13 @@ class GameWindow {
 		using QuittingHandler = std::function<void()>;
 
 		GameWindow(bool isMultiplayer, bool isFirstPlayers);
+        
         void startGameLoop(const Map& map, const EventHandler& onEvent, const LogicHandler& onLoop, const QuittingHandler& onQuit, const EndingHandler& endCondition);
 
 	private:
 
-		Smart::Window window{ nullptr };
-		Renderer renderer{};
 		bool isMultiplayerGame{ false };
 		bool isFirstPlayerPerspective{ true };
-
-		void initializeLibraries();
-        void allocateUIResources();
 
 		void renderMap(const Map& map);
 		void addStatusToRenderer(const Map& map);

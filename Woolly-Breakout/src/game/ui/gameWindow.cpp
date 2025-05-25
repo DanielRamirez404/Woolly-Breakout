@@ -13,12 +13,7 @@
 #include <ranges>
 #include <thread>
 
-GameWindow::GameWindow(bool isMultiplayer, bool isFirstPlayers) 
-	: isMultiplayerGame{ isMultiplayer }, isFirstPlayerPerspective{ isFirstPlayers } 
-{
-	initializeLibraries();
-    allocateUIResources();
-}
+GameWindow::GameWindow(bool isMultiplayer, bool isFirstPlayers) : Window(), isMultiplayerGame{ isMultiplayer }, isFirstPlayerPerspective{ isFirstPlayers } {}
 
 void GameWindow::startGameLoop(const Map& map, const EventHandler& onEvent, const LogicHandler& onLoop, const QuittingHandler& onQuit, const EndingHandler& endCondition) {
     SDL::Event event{};
@@ -46,38 +41,6 @@ void GameWindow::startGameLoop(const Map& map, const EventHandler& onEvent, cons
 		SDL_Delay(delayTime);
 		renderMap(map);
     }
-}
-
-void GameWindow::initializeLibraries() {
-	
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-		throw std::runtime_error("SDL Initialization Error");
-
-	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
-		throw std::runtime_error("SDL_Image Initialization Error");	
-}
-
-void GameWindow::allocateUIResources() {
-    window.reset(SDL_CreateWindow("Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Constants::Window::size, Constants::Window::size, SDL_WINDOW_SHOWN));
-
-	if (!window)
-		throw std::runtime_error("Window Initialization Error");
-	
-	renderer.setRenderer(window.get());
-	
-	if (!renderer)
-		throw std::runtime_error("Renderer Initialization Error");   
-
-    renderer.setTransparentMode();
-
-	constexpr std::string_view extraNames[] { "player", "frame" };
-
-	for (std::string_view name : extraNames)
-		renderer.loadTexture(name.data());
-
-	for (auto const& [name, character] : Notation::characters) {
-		renderer.loadTexture(name.data());
-	}
 }
 
 void GameWindow::renderMap(const Map& map) {
