@@ -17,6 +17,7 @@ Window::Window() {
 
     initializeLibraries();
     allocateUIResources();
+    isSDLInitialized = true;
 }
 
 void Window::initializeLibraries() {
@@ -40,7 +41,7 @@ void Window::allocateUIResources() {
 
     renderer.setTransparentMode();
 
-	constexpr std::string_view extraNames[] { "player", "frame" };
+	constexpr std::string_view extraNames[] { "player", "frame", "menu-bg" };
 
 	for (std::string_view name : extraNames)
 		renderer.loadTexture(name.data());
