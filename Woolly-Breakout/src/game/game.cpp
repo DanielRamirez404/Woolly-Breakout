@@ -82,10 +82,9 @@ void Game::runMultiplayerThreads(GameHost& host) {
 		)
 	};
 
-	std::thread game{ [&]() { startGame(true, hostType == Host::Server); }};
+	startGame(true, hostType == Host::Server);
 	threads.second.join();
 	threads.first.join();
-	game.join();
 }
 
 std::string Game::getNetworkingMessage(Player& player) {
