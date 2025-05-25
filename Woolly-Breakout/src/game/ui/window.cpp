@@ -46,7 +46,7 @@ void Window::allocateUIResources() {
 	for (std::string_view name : buttons)
 		renderer.loadTexture(std::string{name.data()} + std::string{"-btn"});
 
-	constexpr std::string_view extraNames[] { "player", "frame", "menu-bg" };
+	constexpr std::string_view extraNames[] { "player", "frame", "menu-bg", "logo" };
 
 	for (std::string_view name : extraNames)
 		renderer.loadTexture(name.data());

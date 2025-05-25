@@ -4,6 +4,11 @@ namespace Constants {
     
     namespace Window {
         inline constexpr int size{ 750 };
+        inline constexpr int halfSize{ size / 2 };
+        inline constexpr int largePadding{ halfSize / 2 };
+        inline constexpr int bigPadding{ largePadding / 2 };
+        inline constexpr int mediumPadding{ bigPadding / 2 };
+        inline constexpr int smallPadding{ mediumPadding / 2 };
     }
 
     namespace StatusBar {

@@ -19,6 +19,7 @@ class MenuWindow : public Window {
         MenuWindow();
         
         void addButton(const std::string& texture, Button button);
+        void addTexture(const std::string& texture, int x, int y, int width, int length);
         
         void run();
 

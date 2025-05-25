@@ -18,6 +18,11 @@ void MenuWindow::addButton(const std::string& texture, MenuWindow::Button button
     buttons.push_back(button);
 }
 
+void MenuWindow::addTexture(const std::string& texture, int x, int y, int width, int length) {
+    renderer.setArea(x, y, width, length);
+    renderer.addTexture(texture); 
+}
+
 void MenuWindow::run() {
     SDL::Event event{};
 		
@@ -37,8 +42,10 @@ void MenuWindow::run() {
                     clickedButton = getClickedButton(event.button.x, event.button.y);
             }
             else if (event.type == SDL_MOUSEBUTTONUP) {
-                if (clickedButton)
+                if (clickedButton) {
                     clickedButton->onClick();
+                    return;
+                }
             }
         }
     }
