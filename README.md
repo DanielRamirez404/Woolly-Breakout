@@ -1,6 +1,6 @@
 # Woolly Breakout (ongoing...)
 
-An original 2D game made with ```C++``` and the ```SDL2``` library used as a way to learn about ```CMake```, and ```C++``` shipping as a whole, and to work collaboratively with a few classmates.
+An original 2D game made with ```C++``` and the ```SDL2``` library used as a way to learn about ```CMake```, and ```C++``` shipping as a whole.
 
 ## Requirements
 
