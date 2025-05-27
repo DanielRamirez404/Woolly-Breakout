@@ -10,5 +10,6 @@ class MainMenu {
 
         void startMainMenu();
         void startPlayMenu();
+        void addBackButton(MenuWindow& menuWindow);
 };
 

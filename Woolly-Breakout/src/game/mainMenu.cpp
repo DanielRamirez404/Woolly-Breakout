@@ -59,6 +59,19 @@ void MainMenu::startPlayMenu() {
         lanGame.run(); 
         startMainMenu();
     }});
+
+    addBackButton(playMenu);
     
     playMenu.run();
+}
+
+void MainMenu::addBackButton(MenuWindow& menuWindow) {
+    constexpr int horizontalPadding{ int(Constants::Window::halfSize * 1.7) };
+    constexpr int verticalPadding{ int(Constants::Window::smallPadding * 1.2) };
+    constexpr int width{int(Constants::Window::bigPadding)};
+    constexpr int length{int(Constants::Window::mediumPadding)};
+
+    menuWindow.addButton("back", MenuWindow::Button{ horizontalPadding, verticalPadding, width, length, [&]() { 
+        startMainMenu(); 
+    }});
 }
