@@ -9,6 +9,7 @@
 #include "../networking/classes/server.h"
 #include "../networking/classes/client.h"
 #include "../networking/utilities.h"
+#include <stdexcept>
 #include <string>
 #include <functional>
 #include <optional>
@@ -16,6 +17,7 @@
 #include <utility>
 #include <chrono>
 #include <iostream>
+#include <exception>
 
 Game::Game(std::string prompt) :
 	hostType { (prompt == "") ? Host::None : ((prompt == "host") ? Host::Server : Host::Client) },
@@ -44,17 +46,20 @@ void Game::run() {
 
 void Game::startGame(bool isMultiplayer, bool isFirstPlayers) {
 	GameWindow gameWindow{ isMultiplayer, isFirstPlayers };
-	gameWindow.startGameLoop(
-		map.value(), 
+    
+    auto onFinish = [&](const Map::EventPair& event) {
+        if (hostType == Host::None)
+            isRunning = false;
+        else 
+            map.value().addEvent(event); 
+    };
+
+    gameWindow.startGameLoop(
+		map.value(),
 		[&](SDL::Event& event) { handleInput(getThisPlayer(), event); }, 
-		[&]() { map.value().handlePlayerInteractions(getThisPlayer(), [&]() { isRunning = false; }); },
-		[&]() { 
-			if (hostType == Host::None)
-				isRunning = false;
-			else
-				map.value().addEvent({ Map::Event::Quit, "Oops!" }); 
-		},
-		[&]() { return !isRunning; }
+		[&]() { map.value().handlePlayerInteractions(getThisPlayer(), [&]() { onFinish({ Map::Event::Win, "Congratz!" }); }); },
+		[&]() { onFinish({ Map::Event::Quit, "Oops!" }); },
+		[&]() { return !isRunning && hasTeammateLeave; }
 	);
 }
 
@@ -74,17 +79,19 @@ void Game::joinGame() {
 }
 
 void Game::runMultiplayerThreads(GameHost& host) {
-	auto threads{
+    hasTeammateLeave = false; 
+
+    auto threads{
 		host.getMessageThreads(
 			[&](std::string message) { handleMessageReading(getTeammate(), message); },
 			[&]() { return getNetworkingMessage(getThisPlayer()); },
-			[&]() { return isRunning; }
+			[&]() { return isRunning || !hasTeammateLeave; }
 		)
 	};
 
 	startGame(true, hostType == Host::Server);
-	threads.second.join();
-	threads.first.join();
+    threads.second.join();
+    threads.first.join();
 }
 
 std::string Game::getNetworkingMessage(Player& player) {
@@ -127,12 +134,23 @@ void Game::handleMessageReading(Player& player, std::string& message) {
 
 	if (startingFlag == 'p')
 		player.getCoordinates().read(info);
-	else if (startingFlag == 'k')
+	else if (startingFlag == 'k') {
 		map.value().handlePickingKeyUp(info);
+    }
 	else if (startingFlag == 'm')
 		map.value().readString(info);
-	else if (startingFlag == 'w' || startingFlag == 'q')
-		isRunning = false;
+	else if (startingFlag == 'w') {
+        hasTeammateLeave = true;
+
+        if (isRunning)
+            map.value().addEvent({ Map::Event::Win, "Congratz!" }); 
+    }
+	else if (startingFlag == 'q') {
+        hasTeammateLeave = true;
+
+        if (isRunning)
+		    map.value().addEvent({ Map::Event::Quit, "Oops!" }); 
+    }
 }
 
 void Game::handleInput(Player& player, SDL::Event& event) {

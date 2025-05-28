@@ -28,6 +28,7 @@ class Game {
 		std::optional<std::string> server_IPv4{};
 		std::optional<Map> map{ std::nullopt };
 		bool isRunning{ true };
+        bool hasTeammateLeave{ true };
 
 		void startGame(bool isMultiplayer = false, bool isFirstPlayers = true);
 		

@@ -23,7 +23,8 @@ class Map {
 		Map(bool isSinglePlayer = true);
 
 		using Matrix = std::array<std::array<char, Constants::Map::Matrix::size>, Constants::Map::Matrix::size>;
-		
+	    using EventPair = std::pair<Event, std::string>;
+
 		int getPickedUpKeys() const;
 		bool isSafeZoneOpen() const;
 		bool isLegalMove(const Coordinates<int>& coordinates) const;
